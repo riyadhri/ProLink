@@ -12,18 +12,18 @@ import {
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 
-export default function Suggestedaccounts() {
+export default function Suggestedaccounts({ user }) {
   return (
     <Card elevation={10} sx={{ mb: 1, ml: 1, mr: 1, mt: 0 }}>
       <CardHeader
         sx={{ px: 1 }}
         avatar={
           <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-            R
+            {user.firstname.charAt(0)}
           </Avatar>
         }
-        title="Shrimp and Chorizo Paella"
-        subheader="Freelancer"
+        title={user.firstname + " " + user.lastname}
+        subheader={user.job}
       />
 
       <CardContent

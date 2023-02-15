@@ -21,6 +21,7 @@ const postSchema = new mongoose.Schema({
   photos: [{ type: String }],
   videos: [{ type: String }],
   // add comments ref
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
 });
 

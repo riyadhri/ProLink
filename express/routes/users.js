@@ -10,22 +10,37 @@ require("../models/post");
 require("../models/appointment");
 require("../models/review");
 require("../models/comment");
-//router.use(function (req, res, next) {
-//res.header("Access-Control-Allow-Origin", "*");
-//res.header(
-//"Access-Control-Allow-Headers",
-//"Origin, X-Requested-With, Content-Type, Accept"
-//);
-//next();
-//});
 
-// api to get all users
-router.get("/", (req, res, next) => {
-  User.find()
+// get Suggested accounts randomly
+router.get("/suggested", async (req, res) => {
+  try {
+    const users = await User.find().select(" firstname lastname job photo");
+    res.send(users);
+  } catch (err) {
+    res.json({ message: err });
+  }
+});
+// api to update user
+router.patch("/:userid", (req, res, next) => {
+  const id = req.params.userid;
+  const newuser = {
+    location: {
+      wilaya: req.body.wilaya,
+      daira: req.body.daira,
+      commune: req.body.commune,
+    },
+    ...req.body,
+  };
+  User.updateMany({ _id: id }, { $set: newuser })
     .exec()
-    .then((docs) => {
-      console.log(docs);
-      res.status(200).json(docs);
+    .then((result) => {
+      res.status(200).json({
+        message: "User updated",
+        request: {
+          type: "GET",
+          url: "http://localhost:3000/users/" + id,
+        },
+      });
     })
     .catch((err) => {
       console.log(err);
@@ -35,6 +50,35 @@ router.get("/", (req, res, next) => {
     });
 });
 
+// add project to user profile
+router.patch("/addproject/:userid", (req, res, next) => {
+  const id = req.params.userid;
+  const newproject = {
+    name: req.body.name,
+    date: req.body.date,
+    link: req.body.link,
+    description: req.body.description,
+  };
+  User.updateMany({ _id: id }, { $push: { projects: newproject } })
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        message: "User updated",
+        request: {
+          type: "GET",
+          url: "http://localhost:3000/users/" + id,
+        },
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        error: err,
+      });
+    });
+});
+
+// register user
 router.post("/", (req, res) => {
   const newUser = new User({
     _id: new mongoose.Types.ObjectId(),
@@ -57,6 +101,15 @@ router.post("/", (req, res) => {
       longitude: req.body.longitude,
       latitude: req.body.latitude,
     },
+    socialeMedia: {
+      facebook: "",
+      instagram: "",
+      linkedin: "",
+      twitter: "",
+      gmail: "",
+      website: "",
+      youtube: "",
+    },
   });
   newUser
     .save()
@@ -67,34 +120,6 @@ router.post("/", (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(500).json({
-        error: err,
-      });
-    });
-});
-
-// api to update user by id
-router.patch("/:userId", (req, res, next) => {
-  const id = req.params.userId;
-  const updateOps = {};
-  for (const ops of req.body) {
-    updateOps[ops.propName] = ops.value;
-  }
-  User.update({ _id: id }, { $set: updateOps })
-
-    .exec()
-    .then((result) => {
-      res.status(200).json({
-        message: "User updated",
-        request: {
-          type: "GET",
-          url: "http://localhost:3000/users/" + id,
-        },
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-
       res.status(500).json({
         error: err,
       });
@@ -124,7 +149,7 @@ router.delete("/:userId", (req, res, next) => {
     });
 });
 
-// get user using /Myprofile api , populate posts and  populate comments inside posts , and get all appointments of that user ,
+// get myprofile
 router.get("/Myprofile", (req, res) => {
   console.log(req.session.user);
   User.find({ email: req.session.user.email })
@@ -132,6 +157,14 @@ router.get("/Myprofile", (req, res) => {
       path: "posts",
       populate: {
         path: "comments",
+        populate: {
+          path: "sender",
+          select: "firstname lastname photo",
+        },
+      },
+      populate: {
+        path: "owner",
+        select: "firstname lastname photo",
       },
     })
     .populate("appointments")
@@ -149,20 +182,29 @@ router.get("/Myprofile", (req, res) => {
     });
 });
 
-/*
-router.get("/Myprofile", (req, res) => {
-  console.log(req.session.user);
-  User.find({ email: req.session.user.email })
-    .populate({
-      path: "posts",
-      populate: {
-        path: "comments",
-      },
-    })
+// get users ( firstname , lastname , _id  , photo )
+router.get("/:userid", (req, res) => {
+  console.log(" userid " + req.params.userid);
+  User.find({ _id: { $ne: req.params.userid } })
+    .select("firstname lastname _id photo")
     .exec()
     .then((docs) => {
-      console.log(docs);
-      res.status(200).json(docs);
+      const response = {
+        count: docs.length,
+        users: docs.map((doc) => {
+          return {
+            firstname: doc.firstname,
+            lastname: doc.lastname,
+            _id: doc._id,
+            photo: doc.photo,
+            request: {
+              type: "GET",
+              url: "http://localhost:3000/users/" + doc._id,
+            },
+          };
+        }),
+      };
+      res.status(200).json(response);
     })
     .catch((err) => {
       console.log(err);
@@ -171,6 +213,7 @@ router.get("/Myprofile", (req, res) => {
       });
     });
 });
-*/
+
+//------------------------------------------------------------------------------------------
 
 module.exports = router;

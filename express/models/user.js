@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
   password: { type: String, required: true },
-  job: { type: String, required: true },
+  job: { type: String },
   followers: { type: Number, required: true },
   following: { type: Number, required: true },
   location: {
@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
   skills: [{ type: String, required: true }],
   email: { type: String, required: true },
   useemail: { type: Boolean, required: true },
+  language: { type: String },
 
   phone: { type: String, required: true },
   website: { type: String },
@@ -36,7 +37,6 @@ const userSchema = new mongoose.Schema({
     twitter: { type: String },
     gmail: { type: String },
     website: { type: String },
-
     youtube: { type: String },
   },
   // user can have many projects , each project have description , link , date , name

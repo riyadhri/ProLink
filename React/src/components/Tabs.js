@@ -13,21 +13,29 @@ import {
   FormControl,
   Grid,
   InputLabel,
+  Link,
   MenuItem,
   Paper,
   Select,
   TextField,
 } from "@mui/material";
 import MultipleSelectChip from "../components/SelectchipComponent";
-import { useForm, FormProvider } from "react-hook-form";
+import {
+  useForm,
+  Controller,
+  FormProvider,
+  useFormContext,
+} from "react-hook-form";
 
 import Typography from "@mui/material/Typography";
 import { Card, CardActions, CardContent, Modal, Tooltip } from "@mui/material";
-
+import axios from "axios";
 import ModelComponent from "../components/ModelComponent";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Navigate } from "react-router";
+import { DevTool } from "@hookform/devtools";
+import { useMutation } from "react-query";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -62,35 +70,92 @@ function a11yProps(index) {
   };
 }
 
-export default function VerticalTabs() {
+export default function VerticalTabs({ profile }) {
+  // const [profile, setProfile] = React.useState(props.profile);
+  console.log(profile);
+  console.log(profile.location && profile.location.wilaya);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("sm"));
 
-  const [value, setValue] = React.useState(0);
+  const [value, setVal] = React.useState(0);
 
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setVal(newValue);
   };
 
   const [file, setFile] = React.useState();
 
   function FileshandleChange(e) {
     console.log(e.target.files);
-    // setFile(URL.createObjectURL(e.target.files[0]));
+    setFile(URL.createObjectURL(e.target.files[0]));
   }
 
-  const methods = useForm();
+  let defaultValues = {
+    firstname: profile.firstname,
+    lastname: profile.lastname,
+    phone: profile.phone,
+    email: profile.email,
+    facebook: profile.facebook,
+    youtube: profile.youtube,
+    instagram: profile.instagram,
+    website: profile.website,
+    linkedin: profile.linkedin,
+    wilaya: profile.location && profile.location.wilaya,
+    daira: profile.location && profile.location.daira,
+    commune: profile.location && profile.location.commune,
+    language: profile.language,
+    skills: profile.skills,
+  };
+
+  const methods = useForm({
+    mode: "onChange",
+
+    defaultValues: defaultValues,
+  });
+
+  React.useEffect(() => {
+    methods.reset(defaultValues);
+  }, [profile]);
+
+  const mutation = useMutation(
+    (newUser) => {
+      return axios.patch(
+        "http://localhost:3000/users/" + profile._id,
+        newUser,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "*/*",
+          },
+          withCredentials: true,
+        }
+      );
+    },
+    {
+      onSuccess: (response) => {
+        console.log("mutation succesed");
+        console.log(response.data);
+        console.log(response);
+        //  localStorage.setItem("user", JSON.stringify(response.data));
+        //  navigate("/");
+      },
+      onError: (response) => {
+        console.log("mutation failed");
+        console.log(response.data);
+
+        //  localStorage.setItem("user", JSON.stringify(response.data));
+        //  navigate("/");
+      },
+    }
+  );
 
   const onSubmit = (data) => {
     console.log(data);
-    data = {
-      ...data,
-      //  projects: props.user.projects,
-      //  skils: props.user.skils,
-      //   posts: props.user.posts,
-      //   photo: props.user.photo,
-    };
-    //  props.editprofile(data);
+    try {
+      mutation.mutate(data);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -118,461 +183,502 @@ export default function VerticalTabs() {
           </Tabs>
         </Grid>
         <Grid item xs={12} sm={10} md={6}>
-          <TabPanel value={value} index={0}>
+          <FormProvider {...methods}>
             <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-start",
-                alignItems: "center",
-                position: "relative",
-              }}
-            >
-              <Avatar
-                alt="Remy Sharp"
-                src={
-                  file
-                    ? file
-                    : "https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png"
-                }
-                sx={{ width: 56, height: 56 }}
-              />
-              <Button component="label" sx={{ borderRadius: "50%" }}>
-                Change
-                <input type="file" hidden onChange={FileshandleChange} />
-              </Button>
-            </Box>
-
-            <FormProvider
+              key={0}
               component="form"
               noValidate
               onSubmit={methods.handleSubmit(onSubmit)}
-              alignContent="start"
-              sx={{ m: 0 }}
-              spacing={2}
-              justifyContent="center"
-              {...methods}
+              sx={{ mt: 3 }}
             >
-              <Box sx={{ display: "flex", p: 1 }}>
-                <TextField
-                  id="outlined-basic"
-                  label="First Name"
-                  variant="outlined"
-                  name="firstName"
-                  defaultValue={"Riyadh"}
-                  {...methods.register("firstName")}
-                  sx={{ flexGrow: 1, mr: 1 }}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="Last Name"
-                  variant="outlined"
-                  name="lastName"
-                  defaultValue={"Derbale"}
-                  {...methods.register("lastName")}
-                  sx={{ flexGrow: 1, mr: 1 }}
-                />
-              </Box>
-
-              <Box sx={{ display: "flex", p: 1 }}>
-                <TextField
-                  id="outlined-basic"
-                  label="Phone"
-                  variant="outlined"
-                  name="phone"
-                  defaultValue={"065602822"}
-                  {...methods.register("phone")}
-                  sx={{ flexGrow: 1, mr: 1 }}
-                />
-                <TextField
-                  id="outlined-basic"
-                  label="language"
-                  variant="outlined"
-                  name="website"
-                  defaultValue={"english"}
-                  {...methods.register("website")}
-                  sx={{ flexGrow: 1, mr: 1 }}
-                />
-              </Box>
-              <Box sx={{ display: "flex", p: 1, flexWrap: "wrap" }}>
-                <FormControl sx={{ flexGrow: 1, m: 1 }}>
-                  <InputLabel id="demo-simple-select-helper-label">
-                    Wilaya
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-helper-label"
-                    id="demo-simple-select-helper"
-                    //  value={age}
-                    label="Wilaya"
-                    onChange={handleChange}
-                    sx={{ minWidth: "110px" }}
-                  >
-                    <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={10}>Ten</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                    <MenuItem value={30}>Thirty</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ flexGrow: 1, m: 1 }}>
-                  <InputLabel id="demo-simple-select-helper-label">
-                    Daira
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-helper-label"
-                    id="demo-simple-select-helper"
-                    //   value={age}
-                    label="Daira"
-                    onChange={handleChange}
-                    sx={{ minWidth: "110px" }}
-                  >
-                    <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={10}>Ten</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                    <MenuItem value={30}>Thirty</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ flexGrow: 1, m: 1 }}>
-                  <InputLabel id="demo-simple-select-helper-label">
-                    Commune
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-helper-label"
-                    id="demo-simple-select-helper"
-                    //   value={age}
-                    label="Commune"
-                    onChange={handleChange}
-                    sx={{ minWidth: "120px" }}
-                  >
-                    <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={10}>Ten</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                    <MenuItem value={30}>Thirty</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-              <Box sx={{ p: 1 }}>
-                <TextField
-                  id="outlined-basic"
-                  label="Email"
-                  variant="outlined"
-                  name="email"
-                  defaultValue={"Email"}
-                  {...methods.register("email")}
-                  sx={{ display: "block", width: "100%" }}
-                  fullWidth
-                />
-              </Box>
-            </FormProvider>
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 1,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 2 }}> Convert Account </Typography>
-              <FormControl sx={{ flexGrow: 1, m: 1 }}>
-                <InputLabel id="demo-simple-select-helper-label">
-                  Client
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-helper-label"
-                  id="demo-simple-select-helper"
-                  //   value={age}
-                  label="Client"
-                  //  onChange={handleChange}
-                  sx={{ minWidth: "120px" }}
+              <TabPanel value={value} index={0}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    position: "relative",
+                  }}
                 >
-                  <MenuItem value="Client">
-                    <em>Client</em>
-                  </MenuItem>
-                  <MenuItem value={10}>Ten</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 1,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 2 }}>Change Password</Typography>
-              <Button sx={{}} variant="contained" color="error">
-                Change Password
-              </Button>
-            </Box>
+                  <Avatar
+                    alt="Remy Sharp"
+                    src={
+                      file
+                        ? file
+                        : "https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png"
+                    }
+                    sx={{ width: 56, height: 56 }}
+                  />
+                  <Button component="label" sx={{ borderRadius: "50%" }}>
+                    Change
+                    <input type="file" hidden onChange={FileshandleChange} />
+                  </Button>
+                </Box>
 
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 1,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 2 }}>Deactivate Accounte</Typography>
-              <Button sx={{}} variant="contained" color="error" size="medium">
-                Deactivate Account
-              </Button>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 1,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 2 }}> Delete Account </Typography>
-              <Button sx={{}} variant="contained" color="error" size="medium">
-                Delete Account
-              </Button>
-            </Box>
-          </TabPanel>
-          <TabPanel value={value} index={2}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 0.5,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 1 }}>Facebook</Typography>
+                <Box sx={{ display: "flex", p: 1 }}>
+                  <Controller
+                    name={"firstname"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"firstname"}
+                        id="firstname"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name={"lastname"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"lastname"}
+                        id="lastname"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
+                </Box>
 
-              <TextField
-                sx={{ flexGrow: 2 }}
-                id="outlined-basic"
-                label="Facebook"
-                variant="outlined"
-              />
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 0.5,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 1 }}>Youtube</Typography>
+                <Box sx={{ display: "flex", p: 1 }}>
+                  <Controller
+                    name={"phone"}
+                    control={methods.control}
+                    render={({ field: { onChange, value, isTouched } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"phone"}
+                        id="phone"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
 
-              <TextField
-                sx={{ flexGrow: 2 }}
-                id="outlined-basic"
-                label="Youtube"
-                variant="outlined"
-              />
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 0.5,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 1 }}> Linkedin</Typography>
+                  <Controller
+                    name={"language"}
+                    control={methods.control}
+                    render={({ field: { onChange, value, isTouched } }) => (
+                      <FormControl sx={{ flexGrow: 1, m: 1 }}>
+                        <InputLabel id="demo-simple-select-helper-label">
+                          Language
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-helper-label"
+                          id="demo-simple-select-helper"
+                          value={value ? value : ""}
+                          label="Language"
+                          onChange={onChange}
+                          sx={{ minWidth: "110px" }}
+                        >
+                          <MenuItem value="Francais">Francais</MenuItem>
+                          <MenuItem value="English">English</MenuItem>
+                          <MenuItem value="العربية">العربية</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </Box>
+                <Box sx={{ display: "flex", p: 1, flexWrap: "wrap" }}>
+                  <Controller
+                    name={"wilaya"}
+                    control={methods.control}
+                    render={({ field: { onChange, value, isTouched } }) => (
+                      <FormControl sx={{ flexGrow: 1, m: 1 }}>
+                        <InputLabel id="demo-simple-select-helper-label">
+                          wilaya
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-helper-label"
+                          id="demo-simple-select-helper"
+                          value={value ? value : ""}
+                          label="wilaya"
+                          onChange={onChange}
+                          sx={{ minWidth: "110px" }}
+                          // defaultValue={profile.location?.wilaya}
+                        >
+                          <MenuItem value="naama">naama</MenuItem>
+                          <MenuItem value="alger">alger</MenuItem>
+                          <MenuItem value="oran">oran</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
 
-              <TextField
-                sx={{ flexGrow: 2 }}
-                id="outlined-basic"
-                label="Linkedin"
-                variant="outlined"
-              />
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 0.5,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 1 }}> Instagram </Typography>
+                  <Controller
+                    name={"daira"}
+                    control={methods.control}
+                    render={({ field: { onChange, value, isTouched } }) => (
+                      <FormControl sx={{ flexGrow: 1, m: 1 }}>
+                        <InputLabel id="demo-simple-select-helper-label">
+                          daira
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-helper-label"
+                          id="demo-simple-select-helper"
+                          value={value ? value : ""}
+                          label="daira"
+                          onChange={onChange}
+                          sx={{ minWidth: "110px" }}
+                        >
+                          <MenuItem value="naama">naama</MenuItem>
+                          <MenuItem value="alger">alger</MenuItem>
+                          <MenuItem value="oran">oran</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
 
-              <TextField
-                sx={{ flexGrow: 2 }}
-                id="outlined-basic"
-                label="Instagram"
-                variant="outlined"
-              />
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                p: 0.5,
-                flexWrap: "wrap",
-              }}
-            >
-              <Typography sx={{ flexGrow: 1 }}> Website </Typography>
+                  <Controller
+                    name={"commune"}
+                    control={methods.control}
+                    render={({ field: { onChange, value, isTouched } }) => (
+                      <FormControl sx={{ flexGrow: 1, m: 1 }}>
+                        <InputLabel id="demo-simple-select-helper-label">
+                          commune
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-helper-label"
+                          id="demo-simple-select-helper"
+                          value={value ? value : ""}
+                          label="commune"
+                          onChange={onChange}
+                          sx={{ minWidth: "110px" }}
+                        >
+                          <MenuItem value="naama">naama</MenuItem>
+                          <MenuItem value="alger">alger</MenuItem>
+                          <MenuItem value="oran">oran</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </Box>
+                <Box sx={{ p: 1 }}>
+                  <Controller
+                    name={"email"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"email"}
+                        id="email"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
+                </Box>
+              </TabPanel>
+              <TabPanel value={value} index={1}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 1,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 2 }}>
+                    {" "}
+                    Convert Account{" "}
+                  </Typography>
+                  <Controller
+                    name={"type"}
+                    control={methods.control}
+                    render={({ field: { onChange, value, isTouched } }) => (
+                      <FormControl sx={{ flexGrow: 1, m: 1 }}>
+                        <InputLabel id="demo-simple-select-helper-label">
+                          profile type
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-helper-label"
+                          id="demo-simple-select-helper"
+                          value={value}
+                          label="type"
+                          onChange={onChange}
+                          sx={{ minWidth: "110px" }}
+                        >
+                          <MenuItem value="client">client</MenuItem>
+                          <MenuItem value="worker">worker</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 1,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 2 }}>Change Password</Typography>
+                  <Button sx={{}} variant="contained" color="error">
+                    Change Password
+                  </Button>
+                </Box>
 
-              <TextField
-                sx={{ flexGrow: 2 }}
-                id="outlined-basic"
-                label="Website"
-                variant="outlined"
-              />
-            </Box>
-          </TabPanel>
-          <TabPanel value={value} index={3}>
-            <Paper elevation={3}>
-              <Box
-                sx={{
-                  m: 1,
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                }}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 1,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 2 }}>
+                    Deactivate Accounte
+                  </Typography>
+                  <Button
+                    sx={{}}
+                    variant="contained"
+                    color="error"
+                    size="medium"
+                  >
+                    Deactivate Account
+                  </Button>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 1,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 2 }}> Delete Account </Typography>
+                  <Button
+                    sx={{}}
+                    variant="contained"
+                    color="error"
+                    size="medium"
+                  >
+                    Delete Account
+                  </Button>
+                </Box>
+              </TabPanel>
+              <TabPanel value={value} index={2}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 0.5,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 1 }}>Facebook</Typography>
+
+                  <Controller
+                    name={"facebook"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"facebook"}
+                        id="facebook"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 0.5,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 1 }}>Youtube</Typography>
+
+                  <Controller
+                    name={"youtube"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"youtube"}
+                        id="youtube"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 0.5,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 1 }}> Linkedin</Typography>
+
+                  <Controller
+                    name={"linkedin"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"linkedin"}
+                        id="linkedin"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 0.5,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 1 }}> Instagram </Typography>
+
+                  <Controller
+                    name={"instagram"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"instagram"}
+                        id="instagram"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    p: 0.5,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ flexGrow: 1 }}> Website </Typography>
+
+                  <Controller
+                    name={"website"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"website"}
+                        id="website"
+                        variant="outlined"
+                        sx={{ flexGrow: 1, mr: 1 }}
+                      />
+                    )}
+                  />
+                </Box>
+              </TabPanel>
+              <TabPanel value={value} index={3}>
+                <Paper elevation={3}>
+                  <Box
+                    sx={{
+                      m: 1,
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    Skills
+                    <MultipleSelectChip skills={profile.skills} />
+                  </Box>
+                </Paper>
+                <Paper sx={{}} elevation={3}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      position: "sticky",
+                      top: 0,
+                      width: "100%",
+                    }}
+                  >
+                    {console.log(profile.skills)}
+                    <Divider textaligns="left"></Divider>
+                    <Card sx={{ m: 1 }}>
+                      <ModelComponent profileId={profile._id} />
+                    </Card>
+
+                    {profile.projects &&
+                      profile.projects.map((project, index) => (
+                        <Card sx={{ m: 1 }} key={index}>
+                          <CardContent>
+                            <Typography variant="h5" component="div">
+                              {project.name}
+                            </Typography>
+                            <Typography
+                              sx={{ fontSize: 14, position: "sticky" }}
+                              color="text.secondary"
+                              gutterBottom
+                            >
+                              {project.date}
+                            </Typography>
+                            <Typography variant="body2">
+                              {project.description}
+                              <br />
+                              {project.description}
+                            </Typography>
+                          </CardContent>
+                          <CardActions>
+                            <Button size="small">
+                              {" "}
+                              <Link href={project.link}> Learn More</Link>
+                            </Button>
+                          </CardActions>
+                        </Card>
+                      ))}
+                  </Box>
+                </Paper>
+              </TabPanel>
+              <Button
+                sx={{ position: "fixed", right: 40, bottom: 40 }}
+                type="submit"
+                variant="contained"
+                color="success"
               >
-                Skills
-                <MultipleSelectChip />
-              </Box>{" "}
-            </Paper>
-            <Paper sx={{}} elevation={3}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  position: "sticky",
-                  top: 0,
-                  width: "100%",
-                }}
-              >
-                <Divider textAligns="left"></Divider>
-
-                <Card sx={{ m: 1 }}>
-                  <Tooltip title="Add New Project" arrow>
-                    <ModelComponent />
-                  </Tooltip>
-                </Card>
-
-                <Card sx={{ width: "100%", m: 1 }}>
-                  <CardContent>
-                    <Typography variant="h5" component="div">
-                      {"project.name"}
-                    </Typography>
-                    <Typography
-                      sx={{ fontSize: 14, position: "sticky" }}
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      {"project.date"}
-                    </Typography>
-                    <Typography variant="body2">
-                      Project Description...
-                      <br />
-                      {"project.desc"}{" "}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">Learn More</Button>
-                  </CardActions>
-                </Card>
-                <Card sx={{ width: "100%", m: 1 }}>
-                  <CardContent>
-                    <Typography variant="h5" component="div">
-                      {"project.name"}
-                    </Typography>
-                    <Typography
-                      sx={{ fontSize: 14, position: "sticky" }}
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      {"project.date"}
-                    </Typography>
-                    <Typography variant="body2">
-                      Project Description...
-                      <br />
-                      {"project.desc"}{" "}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">Learn More</Button>
-                  </CardActions>
-                </Card>
-                <Card sx={{ width: "100%", m: 1 }}>
-                  <CardContent>
-                    <Typography variant="h5" component="div">
-                      {"project.name"}
-                    </Typography>
-                    <Typography
-                      sx={{ fontSize: 14, position: "sticky" }}
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      {"project.date"}
-                    </Typography>
-                    <Typography variant="body2">
-                      Project Description...
-                      <br />
-                      {"project.desc"}{" "}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">Learn More</Button>
-                  </CardActions>
-                </Card>
-                <Card sx={{ width: "100%", m: 1 }}>
-                  <CardContent>
-                    <Typography variant="h5" component="div">
-                      {"project.name"}
-                    </Typography>
-                    <Typography
-                      sx={{ fontSize: 14, position: "sticky" }}
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      {"project.date"}
-                    </Typography>
-                    <Typography variant="body2">
-                      Project Description...
-                      <br />
-                      {"project.desc"}{" "}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small">Learn More</Button>
-                  </CardActions>
-                </Card>
-              </Box>
-            </Paper>
-          </TabPanel>
+                Save
+              </Button>
+            </Box>
+          </FormProvider>
         </Grid>
       </Grid>
-
-      <Button
-        sx={{ position: "fixed", right: 40, bottom: 40 }}
-        type="submit"
-        variant="contained"
-      >
-        Save
-      </Button>
+      <DevTool control={methods.control} />
     </Box>
   );
 }

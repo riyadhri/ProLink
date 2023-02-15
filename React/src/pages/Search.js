@@ -8,24 +8,55 @@ import Appbar from "../components/Appbar";
 import List from "../components/List";
 import { Searchinputs } from "../components/Searchinputs";
 import Postinput from "../components/Postinput";
+import axios from "axios";
 import API_URL from "../services/API_URL";
+import { useQuery, useMutation, useQueryClient } from "react-query";
+
 function Search(props) {
   //  axios get request
   const [posts, setPosts] = React.useState([]);
 
-  React.useEffect(() => {
-    fetch(API_URL + "/posts")
-      .then((res) => res.json())
-      .then((data) => {
-        setPosts(data);
-      });
+  const fetchMyprofile = () => {
+    return axios.get("http://localhost:3000/posts", {
+      withCredentials: true,
+    });
+  };
+  const { isLoading, data, isError, error, refetch } = useQuery(
+    "Myprofile",
+    fetchMyprofile,
+    {
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        setPosts(data.data);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    }
+  );
+
+  const [users, setUsers] = React.useState([]);
+
+  const fetchUsers = () => {
+    return axios.get("http://localhost:3000/users/suggested", {
+      withCredentials: true,
+    });
+  };
+  const {} = useQuery("Users", fetchUsers, {
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      setUsers(data.data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
   });
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Appbar />
       <Grid container>
-        <Grid container xs={12} sx={{ display: { md: "none" } }}>
+        <Grid container item xs={12} sx={{ display: { md: "none" } }}>
           <Searchinputs />
         </Grid>
 
@@ -35,24 +66,23 @@ function Search(props) {
         <Grid item xs={12} md={6}>
           <Postinput />
 
-          {
-            // get posts from /posts and display it with TLC
-            posts.map((post) => (
-              <TLC
-                key={post._id}
-                id={post._id}
-                postimage={post.photos}
-                postdescription={post.description}
-              />
-            ))
-          }
+          {posts.map((post, index) => (
+            <TLC
+              key={index}
+              id={post._id}
+              postPhotos={post.photos}
+              postDescription={post.description}
+              postComments={post.comments}
+              postOwner={post.owner}
+              postLikes={post.likes}
+              postDate={post.date}
+            />
+          ))}
         </Grid>
         <Grid item xs={12} md={3}>
-          <Suggestedaccounts />
-          <Suggestedaccounts />
-          <Suggestedaccounts />
-          <Suggestedaccounts />
-          <Suggestedaccounts />
+          {users.map((user, index) => (
+            <Suggestedaccounts key={index} user={user} />
+          ))}
         </Grid>
       </Grid>
     </Box>

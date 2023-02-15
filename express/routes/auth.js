@@ -56,7 +56,13 @@ router.post("/signup", async (req, res) => {
     if (savedUserRes) {
       const userSession = { email: savedUserRes.email }; // creating user session to keep user loggedin also on refresh
       req.session.user = userSession;
-      return res.status(200).send({ msg: "user is successfully saved" });
+      // return  (_id , firstname , lastname )  in the res
+      return res.status(200).send({
+        _id: savedUserRes._id,
+        firstname: savedUserRes.firstname,
+        lastname: savedUserRes.lastname,
+        photo: savedUserRes.photo,
+      });
     }
   });
 });
@@ -76,11 +82,19 @@ router.post("/login", async (req, res) => {
   if (matchPassword) {
     const userSession = { email: user.email };
     req.session.user = userSession;
-    return res.status(200).send({ msg: "You have logged in successfully" });
+
+    // return  (_id , firstname , lastname )  in the res
+    return res.status(200).send({
+      _id: user._id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      photo: user.photo,
+    });
   } else {
     return res.status(400).json({ msg: "Invalid credential" });
   }
 });
+
 // api to logout
 router.get("/logout", async (req, res) => {
   if (req.session) {

@@ -85,7 +85,7 @@ export default function TLC({
   postComments,
   postShares,
   postViews,
-  postownerid,
+  postOwner,
   postownername,
   postownerimage,
 }) {
@@ -137,7 +137,7 @@ export default function TLC({
         <CardHeader
           avatar={
             <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-              {postownername}
+              {postOwner.firstname.charAt(0)}
             </Avatar>
           }
           action={
@@ -145,7 +145,7 @@ export default function TLC({
               <MoreVertIcon />
             </IconButton>
           }
-          title={postownername}
+          title={postOwner.firstname + " " + postOwner.lastname}
           subheader={postDate}
         />
         <CardContent>
@@ -156,7 +156,7 @@ export default function TLC({
 
         <CardMedia
           component="img"
-          image={postPhotos}
+          image={postPhotos[0] ? postPhotos[0] : "https://picsum.photos/200"}
           alt="Paella dish"
           sx={{ maxHeight: "450px", maxWidth: "100%" }}
         />

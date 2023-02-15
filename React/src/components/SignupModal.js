@@ -20,12 +20,27 @@ import { Link as RouterLink } from "react-router-dom";
 import axios from "axios";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { CurrentUserContext } from "./../CurrentUserContext";
+
 const schema = yup
   .object({
-    email: yup.string().email().required(),
-    firstName: yup.string().min(5).required(),
-    lastName: yup.string().min(5).required(),
-    password: yup.string().min(7).required(),
+    email: yup
+      .string()
+      .email()
+      .required(),
+    firstName: yup
+      .string()
+      .min(5)
+      .required(),
+    lastName: yup
+      .string()
+      .min(5)
+      .required(),
+    password: yup
+      .string()
+      .min(7)
+      .required(),
   })
   .required();
 
@@ -74,6 +89,8 @@ export default function BasicModal() {
 
   // @ts-ignore
   const navigate = useNavigate();
+  const { user, setUser } = useContext(CurrentUserContext);
+
   const mutation = useMutation(
     (newUser) => {
       return axios.post("http://localhost:3000/auth/signup", newUser, {
@@ -89,16 +106,15 @@ export default function BasicModal() {
         console.log("mutation succesed");
         console.log(response.data);
         console.log(response);
-        //  localStorage.setItem("user", JSON.stringify(response.data));
+        setUser(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
         //  navigate("/");
       },
       onError: (response) => {
         console.log("mutation failed");
-        // @ts-ignore
-        console.log(response.data);
-
-        //  localStorage.setItem("user", JSON.stringify(response.data));
-        //  navigate("/");
+        console.log(response);
+        // localStorage.setItem("user", JSON.stringify(response));
+        // navigate("/");
       },
     }
   );
@@ -169,9 +185,9 @@ export default function BasicModal() {
                     autoFocus
                     {...register("firstName")}
                     // @ts-ignore
-                    error={errors.firstName}
+                    // error={errors.firstName}
                     // @ts-ignore
-                    helperText={errors.firstName?.message}
+                    //helperText={errors.firstName}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -184,9 +200,9 @@ export default function BasicModal() {
                     autoComplete="family-name"
                     {...register("lastName")}
                     // @ts-ignore
-                    error={errors.lastName}
+                    //    error={errors.lastName}
                     // @ts-ignore
-                    helperText={errors.lastName?.message}
+                    //   helperText={errors.lastName}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -199,9 +215,9 @@ export default function BasicModal() {
                     autoComplete="email"
                     {...register("email")}
                     // @ts-ignore
-                    error={errors.email}
+                    //  error={errors.email}
                     // @ts-ignore
-                    helperText={errors.email?.message}
+                    //  helperText={errors.email}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -215,9 +231,9 @@ export default function BasicModal() {
                     autoComplete="new-password"
                     {...register("password")}
                     // @ts-ignore
-                    error={errors.password}
+                    //  error={errors.password}
                     // @ts-ignore
-                    helperText={errors.password?.message}
+                    /// helperText={errors.Password}
                   />
                 </Grid>
                 <Grid item xs={12}>

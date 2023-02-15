@@ -4,40 +4,37 @@ import Typography from "@mui/material/Typography";
 import ModelComponent from "../components/ModelComponent";
 import Appbar from "../components/Appbar";
 import Tabs from "../components/Tabs";
+import axios from "axios";
+import API_URL from "../services/API_URL";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 
-import { Modal } from "@mui/material";
-
-function EditProfile(props) {
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
+function EditProfile() {
+  const [profile, setProfile] = React.useState({});
+  const fetchMyprofile = () => {
+    return axios.get("http://localhost:3000/users/Myprofile", {
+      withCredentials: true,
+    });
   };
+  const { isLoading, data, isError, error, refetch } = useQuery(
+    "Myprofile",
+    fetchMyprofile,
+    {
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        setProfile(data.data[0]);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    }
+  );
 
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  console.log(profile);
 
   return (
     <>
-      <Modal>
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
-        </Box>
-      </Modal>
       <Appbar />
-      <Tabs />
+      <Tabs profile={profile} />
     </>
   );
 }

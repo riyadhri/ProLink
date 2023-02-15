@@ -69,39 +69,28 @@ function a11yProps(index) {
 
 function Profile(props) {
   const [profile, setProfile] = React.useState({});
-
-  //axios
-  // .get("http://localhost:3000/users/Myprofile", { withCredentials: true })
-  //  .then(function (response) {
-  //    setProfile(response.data);
-  //    console.log(profile);
-  //   });
-
   const fetchMyprofile = () => {
     return axios.get("http://localhost:3000/users/Myprofile", {
       withCredentials: true,
     });
   };
+  const { isLoading, data, isError, error, refetch } = useQuery(
+    "Myprofile",
+    fetchMyprofile,
+    {
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        setProfile(data.data[0]);
+        console.log(data.data[0]);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    }
+  );
 
-  React.useEffect(() => {
-    fetchMyprofile()
-      .then((response) => response.data)
-      .then((data) => {
-        console.log(data);
-        setProfile(data[0]);
-        console.log(profile);
-        if (!profile) fetchMyprofile();
-      });
-  }, []);
-
-  //  };
-  //  const { isLoading, data, isError, error, refetch } = useQuery(
-  //  "Myprofile",
-  //  fetchMyprofile
-  // );
-
+  console.log(profile);
   const [open, setOpen] = React.useState(false);
-
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -218,12 +207,13 @@ function Profile(props) {
                       }}
                     >
                       <Typography variant="subtitle1">
-                        {profile?.rating}{" "}
+                        {profile.rating}
                       </Typography>
                       <Rating
                         size="small"
                         name="size-large"
-                        defaultValue={profile?.rating}
+                        value={profile.rating ? profile.rating : 0}
+                        readOnly
                       />
                     </Box>
                   </Box>
@@ -309,11 +299,12 @@ function Profile(props) {
                     fontWeight: "regular",
                   }}
                 >
-                  {profile.location?.wilaya +
-                    " " +
-                    profile.location?.daira +
-                    " " +
-                    profile.location?.commune}
+                  {profile.location &&
+                    profile.location.wilaya +
+                      " " +
+                      profile.location.daira +
+                      " " +
+                      profile.location.commune}
                 </Typography>
                 <IconButton
                   onClick={() => showInMapClicked()}
@@ -428,43 +419,45 @@ function Profile(props) {
                   <Chip label="Work" />
                 </Divider>
 
-                {profile?.projects?.map((project) => {
-                  return (
-                    <Card sx={{ m: 1 }}>
-                      <CardContent>
-                        <Typography variant="h5" component="div">
-                          {project.name}
-                        </Typography>
-                        <Typography
-                          sx={{ fontSize: 14, position: "sticky" }}
-                          color="text.secondary"
-                          gutterBottom
-                        >
-                          {project.date}
-                        </Typography>
-                        <Typography variant="body2">
-                          {project.description}
-                          <br />
-                          {project.description}
-                        </Typography>
-                      </CardContent>
-                      <CardActions>
-                        <Button size="small">
-                          {" "}
-                          <Link href={project.link}> Learn More</Link>
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  );
-                })}
+                {profile.project &&
+                  profile.projects.map((project, index) => {
+                    return (
+                      <Card sx={{ m: 1 }} key={index}>
+                        <CardContent>
+                          <Typography variant="h5" component="div">
+                            {project.name}
+                          </Typography>
+                          <Typography
+                            sx={{ fontSize: 14, position: "sticky" }}
+                            color="text.secondary"
+                            gutterBottom
+                          >
+                            {project.date}
+                          </Typography>
+                          <Typography variant="body2">
+                            {project.description}
+                            <br />
+                            {project.description}
+                          </Typography>
+                        </CardContent>
+                        <CardActions>
+                          <Button size="small">
+                            {" "}
+                            <Link href={project.link}> Learn More</Link>
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    );
+                  })}
 
                 <Divider textAlign="left">
                   <Chip label="Skils" />
                 </Divider>
                 <Box sx={{ p: 1.5 }}>
-                  {profile?.skills?.map((skill) => (
-                    <Chip color="primary" label={skill} />
-                  ))}
+                  {profile.skills &&
+                    profile.skills.map((skill, index) => (
+                      <Chip color="primary" label={skill} key={index} />
+                    ))}
                 </Box>
               </Box>
             </Paper>
@@ -512,43 +505,47 @@ function Profile(props) {
                 </Tabs>
               </Box>
               <TabPanel value={value} index={0}>
-                {profile.posts?.map((post) => (
-                  <TLC
-                    postComments={post.comments}
-                    postDate={post.date}
-                    postDescription={post.description}
-                    postPhotos={post.photos}
-                    postLikes={post.likes}
-                    postShares={post.Shares}
-                    postName={post.name}
-                    postUser={post.user}
-                    postVideos={post.videos}
-                    postId={post._id}
-                  />
-                ))}
+                {profile.posts &&
+                  profile.posts.map((post, index) => (
+                    <TLC
+                      key={index}
+                      postComments={post.comments}
+                      postDate={post.date}
+                      postDescription={post.description}
+                      postPhotos={post.photos}
+                      postLikes={post.likes}
+                      postShares={post.Shares}
+                      postName={post.name}
+                      postUser={post.user}
+                      postVideos={post.videos}
+                      postId={post._id}
+                      postOwner={post.owner}
+                    />
+                  ))}
               </TabPanel>
               <TabPanel value={value} index={1}>
-                {profile.appointments?.map((appointment) => (
-                  <Paper sx={{ p: 2, mb: 1 }} elevation={10}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Avatar alt="Cindy Baker" src="" />
-                      <Typography> {appointment.user1} </Typography>
-                      <Typography> {appointment.user2} </Typography>
-                    </Box>
-                    <Typography>
-                      {" "}
-                      {appointment.date} {"  "}
-                      {appointment.time}
-                    </Typography>
-                    <Typography> {appointment.location}</Typography>
-                  </Paper>
-                ))}
+                {profile.appointments &&
+                  profile.appointments.map((appointment, index) => (
+                    <Paper key={index} sx={{ p: 2, mb: 1 }} elevation={10}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Avatar alt="Cindy Baker" src="" />
+                        <Typography> {appointment.user1} </Typography>
+                        <Typography> {appointment.user2} </Typography>
+                      </Box>
+                      <Typography>
+                        {" "}
+                        {appointment.date} {"  "}
+                        {appointment.time}
+                      </Typography>
+                      <Typography> {appointment.location}</Typography>
+                    </Paper>
+                  ))}
               </TabPanel>
 
               <TabPanel
@@ -568,24 +565,27 @@ function Profile(props) {
                     width: "100%",
                     mb: 1.5,
                   }}
-                  s
                 >
-                  {profile.reviews?.map((review) => (
-                    <Paper sx={{ p: 1, m: 1 }} elevation={10}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Avatar alt="Cindy Baker" src="" />
-                        <Typography> {review.sender} </Typography>
-                      </Box>
-                      <Rating name="size-large" defaultValue={review.rating} />
-                      <Typography> {review.message} </Typography>
-                    </Paper>
-                  ))}
+                  {profile.reviews &&
+                    profile.reviews.map((review, index) => (
+                      <Paper key={index} sx={{ p: 1, m: 1 }} elevation={10}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Avatar alt="Cindy Baker" src="" />
+                          <Typography> {review.sender} </Typography>
+                        </Box>
+                        <Rating
+                          name="size-large"
+                          value={review.rating ? review.rating : 0}
+                        />
+                        <Typography> {review.message} </Typography>
+                      </Paper>
+                    ))}
                 </Box>
               </TabPanel>
             </Paper>

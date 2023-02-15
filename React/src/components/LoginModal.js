@@ -19,6 +19,8 @@ import axios from "axios";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
+import { useContext } from "react";
+import { CurrentUserContext } from "./../CurrentUserContext";
 
 const style = {
   position: "absolute",
@@ -80,6 +82,8 @@ export default function LoginModal() {
       onSuccess: (response) => {
         console.log("mutation succesed");
         console.log(response.data);
+        setUser(response.data);
+        localStorage.setItem("user", JSON.stringify(response.data));
       },
       onError: (response) => {
         console.log("mutation failed");
@@ -103,6 +107,8 @@ export default function LoginModal() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const { user, setUser } = useContext(CurrentUserContext);
 
   return (
     <div>
@@ -154,7 +160,7 @@ export default function LoginModal() {
               // @ts-ignore
               error={errors.email}
               // @ts-ignore
-              helperText={errors.email?.message}
+              helperText={errors.email}
             />
 
             <Controller
@@ -175,7 +181,7 @@ export default function LoginModal() {
                   // @ts-ignore
                   error={errors.password}
                   // @ts-ignore
-                  helperText={errors.password?.message}
+                  helperText={errors.password}
                 />
               )}
               name="password"

@@ -9,7 +9,19 @@ const mongoose = require("mongoose");
 // get all posts
 router.get("/", async (req, res) => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find()
+      .populate("comments")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "sender",
+          select: "firstname lastname photo",
+        },
+      })
+      .populate({
+        path: "owner",
+        select: "firstname lastname photo",
+      });
     res.send(posts);
   } catch (err) {
     res.json({ message: err });

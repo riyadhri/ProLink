@@ -32,11 +32,11 @@ function Appbar() {
     <AppBar position="static" sx={{ mb: 2 }}>
       <Toolbar>
         <Grid container>
-          <Grid xs={1} sx={{ display: { md: "none" } }}>
+          <Grid item xs={1} sx={{ display: { md: "none" } }}>
             <TemporaryDrawer />
           </Grid>
 
-          <Grid xs={1}></Grid>
+          <Grid item xs={1}></Grid>
           <Grid
             item
             md={9}
