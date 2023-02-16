@@ -61,14 +61,39 @@ io.on("connection", (socket) => {
   global.chatSocket = socket;
   socket.on("add-user", (userId) => {
     onlineUsers.set(userId, socket.id);
-    //console.lohg online users
-    console.log("onlineUsers " + onlineUsers);
   });
 
   socket.on("send-msg", (data) => {
     const sendUserSocket = onlineUsers.get(data.to);
     if (sendUserSocket) {
       io.to(sendUserSocket).emit("msg-recieve", data.msg);
+    }
+  });
+
+  //video call socket.emit("me", socket.id);
+
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("callEnded");
+  });
+
+  //socket.emit("me", socket.id);
+
+  socket.on("callUser", (data) => {
+    console.log("callUser", data);
+    const sendUserSocket = onlineUsers.get(data.userToCall);
+    if (sendUserSocket) {
+      io.to(sendUserSocket).emit("callUser", {
+        signal: data.signalData,
+        from: data.from,
+        name: data.name,
+      });
+    }
+  });
+
+  socket.on("answerCall", (data) => {
+    const sendUserSocket = onlineUsers.get(data.to);
+    if (sendUserSocket) {
+      io.to(sendUserSocket).emit("callAccepted", data.signal);
     }
   });
 });

@@ -27,6 +27,8 @@ import SearchResults from "./pages/SearchResults";
 import { createContext, useContext, useState } from "react";
 import { CurrentUserContext } from "./CurrentUserContext";
 import { useAuth } from "./services/ProtectedRoutes";
+import Vid from "./components/vid";
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -68,6 +70,8 @@ function App() {
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Search />} />
+                <Route path="/vid" element={<Vid />} />
+
                 <Route path="SearchResults" element={<SearchResults />} />
                 <Route path="Profile" element={<Profile />} />
                 <Route element={<ProtectedRoutes />}>

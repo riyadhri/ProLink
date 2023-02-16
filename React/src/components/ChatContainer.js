@@ -11,6 +11,8 @@ import SendIcon from "@mui/icons-material/Send";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
 import API_URL from "../services/API_URL";
+import Peer from "simple-peer";
+
 const ChatContainer = ({
   currentChat,
   socket,
@@ -93,6 +95,7 @@ const ChatContainer = ({
     socket.current.on("msg-recieve", (msg) => {
       setArrivalMessage({ fromSelf: false, message: msg });
     });
+
   return (
     <>
       <Box
@@ -128,7 +131,11 @@ const ChatContainer = ({
             </Typography>
           </Box>
           <Box sx={{ display: "flex", direction: "row", alignItems: "center" }}>
-            <Videocallmodal />
+            <Videocallmodal
+              socket={socket}
+              user={user}
+              currentChat={currentChat}
+            />
             <IconButton sx={{ p: 0.5 }}>
               <MinimizeIcon />
             </IconButton>

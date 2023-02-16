@@ -6,6 +6,7 @@ import { IconButton } from "@mui/material";
 import CallIcon from "@mui/icons-material/Call";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import CallEndIcon from "@mui/icons-material/CallEnd";
+import Vid from "./vid";
 const style = {
   position: "absolute",
   top: "50%",
@@ -19,7 +20,7 @@ const style = {
   p: 4,
 };
 
-export default function Videocallmodal() {
+export default function Videocallmodal({ currentChat, user, socket }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -38,12 +39,14 @@ export default function Videocallmodal() {
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
+        sx={{ display: "flex", justifyContent: "center" }}
       >
-        <Box sx={style} component="video" src="">
-          <CallEndIcon
-            fontSize="large"
-            sx={{ position: "fixed", right: "47%", bottom: "10%" }}
-          />
+        <Box sx={{ background: "#fff", height: "100%", width: "70%" }}>
+          {open ? (
+            <Vid currentChat={currentChat} user={user} socket={socket} />
+          ) : (
+            ""
+          )}
         </Box>
       </Modal>
     </div>
