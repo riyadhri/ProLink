@@ -1,15 +1,59 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Box, TextField, Divider, Avatar, Grid, Paper } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Divider,
+  Avatar,
+  Grid,
+  Paper,
+  Button,
+} from "@mui/material";
+import { useForm } from "react-hook-form";
+import { useContext } from "react";
+import { CurrentUserContext } from "./../CurrentUserContext";
+// react query
+import { useMutation, useQueryClient } from "react-query";
+// axios
+import axios from "axios";
+import API_URL from "../services/API_URL";
 
-export default function Comments({ comments }) {
-  console.log(comments);
+export default function Comments({ comments, postId }) {
+  const { user, setUser } = useContext(CurrentUserContext);
+
+  // mutation using react query
+  const mutation = useMutation(
+    (comment) => {
+      return axios.post(API_URL + "/posts/addcomment", comment);
+    },
+    {
+      onSuccess: (data) => {
+        console.log(data);
+      },
+      onError: (data) => {
+        console.log(data);
+      },
+    }
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    // @ts-ignore
+    mutation.mutate({ value: data.value, postId, sender: user._id });
+    console.log({ value: data.value, postId, user: user._id });
+  };
+
   return (
     <div style={{ padding: 0 }} className="App">
       <h4 style={{ marginTop: 0 }}>Comments</h4>
-      {comments.map((comment) => (
-        <Paper style={{ padding: "10px 10px" }}>
+      {comments.map((comment, index) => (
+        <Paper style={{ padding: "10px 10px" }} key={index}>
           <Grid container wrap="nowrap" spacing={2}>
             <Grid item>
               <Avatar alt="Remy Sharp" src={comment.sender.photo} />
@@ -29,7 +73,19 @@ export default function Comments({ comments }) {
           <Avatar alt="Remy Sharp" />
         </Grid>
         <Grid justifyContent="left" item xs zeroMinWidth>
-          <TextField fullWidth label="Add Comment" id="fullWidth" />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <TextField
+              fullWidth
+              id="outlined-multiline-flexible"
+              label="add comment "
+              multiline
+              maxRows={4}
+              {...register("value", { required: true })}
+            />
+            <Button type="submit" variant="contained">
+              Save
+            </Button>
+          </form>
         </Grid>
       </Grid>
     </div>

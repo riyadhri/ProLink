@@ -28,6 +28,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     name: "session-id",
+    // add session never expire
+
+    cookie: { maxAge: 1000000000 * 60 * 60 * 24 * 30 },
+
     // cookie: { secure: true },
     store: MongoStore.create({
       mongoUrl: "mongodb://127.0.0.1:27017/ServicesLink",

@@ -11,8 +11,12 @@ import {
 } from "react-query";
 import axios from "axios";
 import API_URL from "../services/API_URL";
+import { useContext } from "react";
+import { CurrentUserContext } from "./../CurrentUserContext";
 
 const Postinput = () => {
+  const { user, setUser } = useContext(CurrentUserContext);
+
   const [file, setFile] = React.useState(null);
   //const [img, setImg] = React.useState(null);
 
@@ -61,6 +65,7 @@ const Postinput = () => {
     const POST = {
       Desc: data.Desc,
       Photo: photobase64,
+      owner: user._id,
     };
 
     // @ts-ignore

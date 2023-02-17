@@ -5,7 +5,7 @@ const likeSchema = new mongoose.Schema({
   sender: { type: String, required: true },
   postId: {
     type: mongoose.Types.ObjectId,
-    required: true,
+    //required: true,
     ref: "Post",
   },
   date: { type: Date, required: true },

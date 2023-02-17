@@ -7,8 +7,11 @@ const postSchema = new mongoose.Schema({
     // , required: true
   },
   likes: {
-    type: Number,
-    // , required: true
+    number: {
+      type: Number,
+      // , required: true
+    },
+    likeinfo: [{ type: mongoose.Schema.Types.ObjectId, ref: "Like" }],
   },
   shares: {
     type: Number,

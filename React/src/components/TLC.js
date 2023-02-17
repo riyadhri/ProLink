@@ -17,10 +17,16 @@ import ChatIcon from "@mui/icons-material/Chat";
 import Comments from "./Comments";
 import { Divider, Menu, MenuItem } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-
 import DeleteIcon from "@mui/icons-material/Delete";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import FlagIcon from "@mui/icons-material/Flag";
+
+import { useContext } from "react";
+import { CurrentUserContext } from "./../CurrentUserContext";
+import { useMutation, useQueryClient } from "react-query";
+import axios from "axios";
+import API_URL from "../services/API_URL";
+
 const StyledMenu = styled((props) => (
   <Menu
     elevation={0}
@@ -77,6 +83,7 @@ const ExpandMore = styled((props) => {
 }));
 
 export default function TLC({
+  postId,
   postDescription,
   postPhotos,
   postvideos,
@@ -89,6 +96,8 @@ export default function TLC({
   postownername,
   postownerimage,
 }) {
+  const { user, setUser } = useContext(CurrentUserContext);
+  console.log("postlikes" + postLikes.likeinfo);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -102,6 +111,30 @@ export default function TLC({
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  const handleClicklike = () => {
+    if (containsString) {
+      console.log(postId);
+      axios.post(API_URL + "/posts/dislike", {
+        postId: postId,
+        sender: user._id,
+      });
+    } else {
+      axios.post(API_URL + "/posts/addlike", {
+        postId: postId,
+        sender: user._id,
+      });
+    }
+  };
+  console.log(postLikes.likeinfo);
+
+  const containsString = postLikes.likeinfo.some((obj) => {
+    return Object.values(obj).some((val) => {
+      return val.includes(user._id);
+    });
+  });
+
+  console.log(containsString);
 
   return (
     <>
@@ -165,9 +198,13 @@ export default function TLC({
           disableSpacing
           sx={{ display: "flex", justifyContent: "flex-start" }}
         >
-          <IconButton aria-label="add to favorites">
+          <IconButton
+            aria-label="add to favorites"
+            color={containsString ? "error" : "default"}
+            onClick={handleClicklike}
+          >
             <FavoriteIcon />
-            {postLikes}
+            {postLikes.number}
           </IconButton>
 
           <ExpandMore
@@ -181,11 +218,12 @@ export default function TLC({
 
           <IconButton aria-label="share">
             <ShareIcon />
+            {postShares}
           </IconButton>
         </CardActions>
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent sx={{ pt: 0 }}>
-            <Comments comments={postComments} />
+            <Comments comments={postComments} postId={postId} />
           </CardContent>
         </Collapse>
       </Card>

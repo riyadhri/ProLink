@@ -69,12 +69,13 @@ function Search(props) {
           {posts.map((post, index) => (
             <TLC
               key={index}
-              id={post._id}
+              postId={post._id}
               postPhotos={post.photos}
               postDescription={post.description}
               postComments={post.comments}
               postOwner={post.owner}
               postLikes={post.likes}
+              postShares={post.shares}
               postDate={post.date}
             />
           ))}
