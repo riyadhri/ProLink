@@ -4,7 +4,9 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Avatar, Badge, Box, Typography } from "@mui/material";
 import MailIcon from "@mui/icons-material/Mail";
-
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 const options = [
   "None",
   "Atria",
@@ -25,6 +27,10 @@ const options = [
 const ITEM_HEIGHT = 48;
 
 export default function LongMenu() {
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -42,7 +48,7 @@ export default function LongMenu() {
         aria-controls={open ? "long-menu" : undefined}
         aria-expanded={open ? "true" : undefined}
         aria-haspopup="true"
-        onClick={handleClick}
+        onClick={(e) => (mobile ? navigate("/ChatMobile") : handleClick(e))}
         color="inherit"
       >
         <Badge badgeContent={4} color="error">

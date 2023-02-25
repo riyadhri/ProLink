@@ -39,6 +39,9 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import axios from "axios";
 import API_URL from "../services/API_URL";
 import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useContext } from "react";
+import { CurrentUserContext } from "./../CurrentUserContext";
+import { useParams } from "react-router-dom";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -69,19 +72,35 @@ function a11yProps(index) {
 
 function Profile(props) {
   const [profile, setProfile] = React.useState({});
-  const fetchMyprofile = () => {
-    return axios.get("http://localhost:3000/users/Myprofile", {
+
+  const { profileId } = useParams();
+  const { user, setUser } = useContext(CurrentUserContext);
+  let isMyprofile = false;
+
+  //console.log("user._id", user._id);
+  // console.log("profileId", profileId);
+
+  if (user._id == profileId) {
+    isMyprofile = true;
+  }
+  //console.log("ismyprofile" + isMyprofile);
+  const fetchprofile = () => {
+    return axios.get(API_URL + "/users/profile", {
+      params: {
+        isMyprofile,
+        profileId,
+      },
       withCredentials: true,
     });
   };
   const { isLoading, data, isError, error, refetch } = useQuery(
     "Myprofile",
-    fetchMyprofile,
+    fetchprofile(),
     {
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
         setProfile(data.data[0]);
-        console.log(data.data[0]);
+        //  console.log(data.data[0]);
       },
       onError: (error) => {
         console.log(error);
@@ -89,7 +108,7 @@ function Profile(props) {
     }
   );
 
-  console.log(profile);
+  //console.log(profile);
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = () => {
     setOpen(true);
@@ -509,17 +528,14 @@ function Profile(props) {
                   profile.posts.map((post, index) => (
                     <TLC
                       key={index}
-                      postComments={post.comments}
-                      postDate={post.date}
-                      postDescription={post.description}
-                      postPhotos={post.photos}
-                      postLikes={post.likes}
-                      postShares={post.Shares}
-                      postName={post.name}
-                      postUser={post.user}
-                      postVideos={post.videos}
                       postId={post._id}
+                      postPhotos={post.photos}
+                      postDescription={post.description}
+                      postComments={post.comments}
                       postOwner={post.owner}
+                      postLikes={post.likes}
+                      postShares={post.shares}
+                      postDate={post.date}
                     />
                   ))}
               </TabPanel>

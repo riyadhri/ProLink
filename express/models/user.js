@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true },
   useemail: { type: Boolean, required: true },
   language: { type: String },
-
   phone: { type: String, required: true },
   website: { type: String },
   photo: { type: String },

@@ -82,7 +82,7 @@ router.post("/login", async (req, res) => {
   if (matchPassword) {
     const userSession = { email: user.email };
     req.session.user = userSession;
-
+    console.log(req.session.user);
     // return  (_id , firstname , lastname )  in the res
     return res.status(200).send({
       _id: user._id,
@@ -107,6 +107,7 @@ router.get("/logout", async (req, res) => {
 // api to check if user is logged in
 router.get("/isAuth", async (req, res) => {
   if (req.session.user) {
+    console.log(req.session);
     return res.json(req.session.user);
   } else {
     return res.status(401).json("unauthorize");

@@ -4,6 +4,7 @@ const Post = require("../models/post");
 const mongoose = require("mongoose");
 const Comment = require("../models/comment");
 const Like = require("../models/like");
+const User = require("../models/user");
 // validation
 //const { postValidation } = require("../validation");
 
@@ -56,6 +57,7 @@ router.delete("/:postId", async (req, res) => {
 });
 
 // update post
+
 router.patch("/:postId", async (req, res) => {
   try {
     const updatedPost = await Post.updateOne(
@@ -68,9 +70,9 @@ router.patch("/:postId", async (req, res) => {
   }
 });
 
-// create post
+// add new post , and push it to array of posts in user
+
 router.post("/", async (req, res) => {
-  console.log(req.body);
   // create new post
   const newPost = new Post({
     _id: new mongoose.Types.ObjectId(),
@@ -85,11 +87,20 @@ router.post("/", async (req, res) => {
   });
   try {
     const savedPost = await newPost.save();
-    res.json(savedPost);
+    // push post id to  User posts array
+    User.updateOne(
+      { _id: mongoose.Types.ObjectId(req.body.owner) },
+      { $push: { posts: mongoose.Types.ObjectId(newPost._id) } }
+    )
+      .then(() => console.log("Post ID added to user posts array"))
+      .catch((error) =>
+        console.log("Error adding post ID to user posts array:", error)
+      );
   } catch (err) {
     res.json({ message: err });
   }
 });
+
 // create new comment using value , sender from req , then push new comment id to posts
 // comments array
 router.post("/addcomment", async (req, res) => {

@@ -22,9 +22,11 @@ import Messagesicon from "./Messagesicon";
 import Notificationsicon from "./Notificationsicon";
 import TemporaryDrawer from "./Temporarydrawer";
 import { Searchinputs } from "./Searchinputs";
-
+import { useContext } from "react";
+import { CurrentUserContext } from "./../CurrentUserContext";
 function Appbar() {
   // create use state isAuth
+  const { user, setUser } = useContext(CurrentUserContext);
 
   const [isAuth, setIsAuth] = React.useState(true);
 
@@ -62,16 +64,16 @@ function Appbar() {
               alignItems: "center",
             }}
           >
-            {isAuth ? (
-              <>
-                <LoginModal />
-                <SignupModal />
-              </>
-            ) : (
+            {user._id ? (
               <>
                 <Messagesicon />
                 <Notificationsicon />
                 <Accountmenu />
+              </>
+            ) : (
+              <>
+                <LoginModal />
+                <SignupModal />
               </>
             )}
           </Grid>

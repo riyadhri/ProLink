@@ -21,7 +21,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { useContext } from "react";
 import { CurrentUserContext } from "./../CurrentUserContext";
-
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import API_URL from "../services/API_URL";
 const style = {
   position: "absolute",
   top: "50%",
@@ -55,6 +57,8 @@ function Copyright(props) {
 const schema = yup.object({}).required();
 
 export default function LoginModal() {
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down("md"));
   const {
     register,
     formState: { errors },
@@ -69,12 +73,11 @@ export default function LoginModal() {
 
   const mutation = useMutation(
     (User) => {
-      return axios.post("http://localhost:3000/auth/login", User, {
+      return axios.post(API_URL + "/auth/login", User, {
         headers: {
           "Content-Type": "application/json",
           Accept: "*/*",
         },
-
         withCredentials: true,
       });
     },
@@ -131,7 +134,7 @@ export default function LoginModal() {
             flexDirection: "column",
             alignItems: "center",
             background: "#fff",
-            width: "40%",
+            width: mobile ? "100%" : "40%",
             borderRadius: "10px",
           }}
         >

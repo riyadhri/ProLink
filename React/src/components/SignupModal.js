@@ -22,7 +22,9 @@ import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { CurrentUserContext } from "./../CurrentUserContext";
-
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import API_URL from "../services/API_URL";
 const schema = yup
   .object({
     email: yup
@@ -76,6 +78,8 @@ const style = {
 };
 
 export default function BasicModal() {
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down("md"));
   const {
     register,
     formState: { errors },
@@ -93,7 +97,7 @@ export default function BasicModal() {
 
   const mutation = useMutation(
     (newUser) => {
-      return axios.post("http://localhost:3000/auth/signup", newUser, {
+      return axios.post(API_URL + "/auth/signup", newUser, {
         headers: {
           "Content-Type": "application/json",
           Accept: "*/*",
@@ -141,7 +145,7 @@ export default function BasicModal() {
   return (
     <div>
       <Button onClick={handleOpen} color="success" variant="contained">
-        signin
+        register
       </Button>
       <Modal
         open={open}
@@ -150,7 +154,11 @@ export default function BasicModal() {
         aria-describedby="modal-modal-description"
       >
         <Container
-          sx={{ background: "#fff", width: "40%", borderRadius: "10px" }}
+          sx={{
+            background: "#fff",
+            width: mobile ? "100%" : "40%",
+            borderRadius: "10px",
+          }}
         >
           <CssBaseline />
           <Box

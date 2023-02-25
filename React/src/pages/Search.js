@@ -17,7 +17,7 @@ function Search(props) {
   const [posts, setPosts] = React.useState([]);
 
   const fetchMyprofile = () => {
-    return axios.get("http://localhost:3000/posts", {
+    return axios.get(API_URL + "/posts", {
       withCredentials: true,
     });
   };
@@ -38,7 +38,7 @@ function Search(props) {
   const [users, setUsers] = React.useState([]);
 
   const fetchUsers = () => {
-    return axios.get("http://localhost:3000/users/suggested", {
+    return axios.get(API_URL + "/users/suggested", {
       withCredentials: true,
     });
   };

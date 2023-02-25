@@ -14,8 +14,13 @@ import Logout from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useContext } from "react";
+import { CurrentUserContext } from "./../CurrentUserContext";
+
 export default function AccountMenu() {
   const theme = useTheme();
+
+  const { user, setUser } = useContext(CurrentUserContext);
   const matches = useMediaQuery(theme.breakpoints.up("sm"));
 
   const navigate = useNavigate();
@@ -79,7 +84,7 @@ export default function AccountMenu() {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={() => navigate("/Profile")}>
+        <MenuItem onClick={() => navigate("/Profile/" + user._id)}>
           <Avatar /> Profile
         </MenuItem>
         <MenuItem onClick={handleClose}>

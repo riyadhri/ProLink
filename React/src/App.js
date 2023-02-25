@@ -28,6 +28,8 @@ import { createContext, useContext, useState } from "react";
 import { CurrentUserContext } from "./CurrentUserContext";
 import { useAuth } from "./services/ProtectedRoutes";
 import Vid from "./components/vid";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import ChatMobile from "./pages/mobile/ChatMobile";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +37,8 @@ function App() {
   const { register, control, handleSubmit } = useForm({
     mode: "onChange",
   });
-
+  const mobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [user, setUser] = React.useState({});
   const [inputList, setInputList] = React.useState(<Chat key={1} />);
   //const [inputList, setInputList] = React.useState([]);
 
@@ -45,16 +48,12 @@ function App() {
   const onAddBtnClick = (event) => {
     setInputList([]);
   };
-
-  const [user, setUser] = React.useState({});
-
   useEffect(() => {
     if (JSON.parse(localStorage.getItem("user"))) {
       const USER = JSON.parse(localStorage.getItem("user"));
       setUser(USER);
     }
   }, []);
-
   return (
     <>
       <ThemeProvider theme={theme}>
@@ -64,16 +63,16 @@ function App() {
             setUser,
           }}
         >
-          {inputList}
+          {user._id ? (mobile ? "" : inputList) : ""}
           <QueryClientProvider client={queryClient}>
             <ReactQueryDevtools initialIsOpen={false} />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Search />} />
                 <Route path="/vid" element={<Vid />} />
-
                 <Route path="SearchResults" element={<SearchResults />} />
-                <Route path="Profile" element={<Profile />} />
+                <Route path="Profile/:profileId" element={<Profile />} />
+                <Route path="/ChatMobile" element={<ChatMobile />} />
                 <Route element={<ProtectedRoutes />}>
                   <Route path="/EditProfile" element={<EditProfile />} />
                 </Route>

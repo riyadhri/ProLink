@@ -1,5 +1,4 @@
 const express = require("express");
-const router = express.Router();
 const User = require("../models/user");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
@@ -10,6 +9,7 @@ require("../models/post");
 require("../models/appointment");
 require("../models/review");
 require("../models/comment");
+const router = require("express").Router();
 
 // get Suggested accounts randomly
 router.get("/suggested", async (req, res) => {
@@ -150,39 +150,83 @@ router.delete("/:userId", (req, res, next) => {
 });
 
 // get myprofile
-router.get("/Myprofile", (req, res) => {
-  console.log(req.session.user);
-  User.find({ email: req.session.user.email })
-    .populate({
-      path: "posts",
-      populate: {
-        path: "comments",
+router.get("/profile", async (req, res) => {
+  const isMyprofile = req.query.isMyprofile;
+  const profileId = req.query.profileId;
+  console.log("user", req.session);
+
+  console.log("isMyprofile", isMyprofile);
+  console.log("profileId", profileId);
+
+  if (isMyprofile == "true") {
+    const user = User.find({ email: req.session.user }).select("_id").exec();
+    if (req.session.user) console.log("user", req.session.user);
+    if (user._id == profileId) {
+      User.find({ email: req.session.user.email })
+        .populate({
+          path: "posts",
+          populate: {
+            path: "comments",
+            populate: {
+              path: "sender",
+              select: "firstname lastname photo",
+            },
+          },
+          populate: {
+            path: "owner",
+            select: "firstname lastname photo",
+          },
+        })
+        .populate("appointments")
+        .populate("reviews")
+        .exec()
+        .then((docs) => {
+          console.log(docs);
+          res.status(200).json(docs);
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(500).json({
+            error: err,
+          });
+        });
+    } else {
+      // error
+    }
+  } else {
+    User.find({ email: req.session.user })
+      .populate({
+        path: "posts",
         populate: {
-          path: "sender",
+          path: "comments",
+          populate: {
+            path: "sender",
+            select: "firstname lastname photo",
+          },
+        },
+        populate: {
+          path: "owner",
           select: "firstname lastname photo",
         },
-      },
-      populate: {
-        path: "owner",
-        select: "firstname lastname photo",
-      },
-    })
-    .populate("appointments")
-    .populate("reviews")
-    .exec()
-    .then((docs) => {
-      console.log(docs);
-      res.status(200).json(docs);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        error: err,
+      })
+      .populate("reviews")
+      .exec()
+      .then((docs) => {
+        console.log(docs);
+        res.status(200).json(docs);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          error: err,
+        });
       });
-    });
+  }
 });
 
-// get users ( firstname , lastname , _id  , photo )
+//--------------------------------------------------------
+/*
+
 router.get("/:userid", (req, res) => {
   console.log(" userid " + req.params.userid);
   User.find({ _id: { $ne: req.params.userid } })
@@ -213,7 +257,6 @@ router.get("/:userid", (req, res) => {
       });
     });
 });
-
-//------------------------------------------------------------------------------------------
+*/
 
 module.exports = router;
