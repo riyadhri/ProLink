@@ -72,20 +72,39 @@ function a11yProps(index) {
 
 function Profile(props) {
   const [profile, setProfile] = React.useState({});
-
   const { profileId } = useParams();
+
   const { user, setUser } = useContext(CurrentUserContext);
   let isMyprofile = false;
+  if (user._id == profileId) {
+    isMyprofile = true;
+  }
+
+  React.useEffect(() => {
+    if (profileId != profile._id)
+      axios
+        .get("http://localhost:3000/users/profile", {
+          params: {
+            isMyprofile,
+            profileId,
+          },
+          withCredentials: true,
+        })
+        .then(function(response) {
+          console.log(response);
+          setProfile(response.data[0]);
+        });
+
+    console.log(`ID parameter changed to ${profileId}`);
+  }, [profileId]);
 
   //console.log("user._id", user._id);
   // console.log("profileId", profileId);
 
-  if (user._id == profileId) {
-    isMyprofile = true;
-  }
   //console.log("ismyprofile" + isMyprofile);
+
   const fetchprofile = () => {
-    return axios.get(API_URL + "/users/profile", {
+    return axios.get("http://localhost:3000/users/profile", {
       params: {
         isMyprofile,
         profileId,
@@ -93,14 +112,15 @@ function Profile(props) {
       withCredentials: true,
     });
   };
+
   const { isLoading, data, isError, error, refetch } = useQuery(
     "Myprofile",
-    fetchprofile(),
+    fetchprofile,
     {
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
         setProfile(data.data[0]);
-        //  console.log(data.data[0]);
+        console.log(data);
       },
       onError: (error) => {
         console.log(error);
@@ -201,7 +221,11 @@ function Profile(props) {
                       },
                     }}
                     alt="The house from the offer."
-                    src={profile.photo}
+                    src={
+                      profile.photo != "none"
+                        ? profile.photo
+                        : "https://th.bing.com/th/id/OIP.OesLvyzDO6AvU_hYUAT4IAHaHa?pid=ImgDet&dpr=2"
+                    }
                   />
 
                   <Box

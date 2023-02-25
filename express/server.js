@@ -6,7 +6,6 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-//const { createProxyMiddleware } = require("http-proxy-middleware");
 const socket = require("socket.io");
 
 app.use(express.json({ limit: "50mb" }));
@@ -20,7 +19,7 @@ app.use(
     accept: true,
   })
 );
-
+app.use(express.json());
 app.use(cookieParser());
 app.use(
   session({
@@ -28,11 +27,11 @@ app.use(
     resave: false,
     saveUninitialized: false,
     name: "session-id",
-    // add session never expire
-
-    cookie: { maxAge: 1000000000 * 60 * 60 * 24 * 30 },
-
-    // cookie: { secure: true },
+    cookie: {
+      maxAge: 1000000000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+      secure: false,
+    },
     store: MongoStore.create({
       mongoUrl: "mongodb://127.0.0.1:27017/ServicesLink",
     }),
@@ -41,8 +40,6 @@ app.use(
 
 db.on("error", (error) => console.error(error));
 db.once("open", () => console.log("Connected to Database"));
-
-app.use(express.json());
 
 app.use("/auth", require("./routes/auth"));
 app.use("/posts", require("./routes/posts"));

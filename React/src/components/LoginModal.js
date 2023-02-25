@@ -73,10 +73,10 @@ export default function LoginModal() {
 
   const mutation = useMutation(
     (User) => {
-      return axios.post(API_URL + "/auth/login", User, {
+      return axios.post("http://localhost:3000/auth/login", User, {
         headers: {
           "Content-Type": "application/json",
-          Accept: "*/*",
+          Accept: "",
         },
         withCredentials: true,
       });

@@ -24,7 +24,7 @@ const ChatContainer = ({
   handleClick,
 }) => {
   const { user, setUser } = useContext(CurrentUserContext);
-  console.log(user);
+  //console.log(user);
   const [msg, setMsg] = React.useState("");
   const [messages, setMessages] = React.useState([]);
   const scrollRef = React.useRef();
@@ -64,7 +64,7 @@ const ChatContainer = ({
 
   const handleSendMsg = async (msg) => {
     const data = user._id;
-    console.log(socket.current);
+    // console.log(socket.current);
     socket.current.emit("send-msg", {
       to: currentChat._id,
       from: data,

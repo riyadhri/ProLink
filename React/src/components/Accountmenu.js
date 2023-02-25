@@ -84,7 +84,7 @@ export default function AccountMenu() {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={() => navigate("/Profile/" + user._id)}>
+        <MenuItem onClick={() => navigate("/profile/" + user._id)}>
           <Avatar /> Profile
         </MenuItem>
         <MenuItem onClick={handleClose}>
@@ -97,9 +97,12 @@ export default function AccountMenu() {
           </ListItemIcon>
           Add another account
         </MenuItem>
+
         <MenuItem
           onClick={() => {
-            matches ? navigate("/EditProfile") : navigate("/EditProfileMobile");
+            matches
+              ? navigate("/EditProfile/" + user._id)
+              : navigate("/EditProfileMobile/" + user._id);
           }}
         >
           <ListItemIcon>
@@ -107,6 +110,7 @@ export default function AccountMenu() {
           </ListItemIcon>
           Settings
         </MenuItem>
+
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
             <Logout fontSize="small" />

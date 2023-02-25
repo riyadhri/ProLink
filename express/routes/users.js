@@ -153,48 +153,67 @@ router.delete("/:userId", (req, res, next) => {
 router.get("/profile", async (req, res) => {
   const isMyprofile = req.query.isMyprofile;
   const profileId = req.query.profileId;
-  console.log("user", req.session);
 
+  console.log("user", req.session.user);
   console.log("isMyprofile", isMyprofile);
   console.log("profileId", profileId);
 
   if (isMyprofile == "true") {
-    const user = User.find({ email: req.session.user }).select("_id").exec();
-    if (req.session.user) console.log("user", req.session.user);
-    if (user._id == profileId) {
-      User.find({ email: req.session.user.email })
-        .populate({
-          path: "posts",
-          populate: {
-            path: "comments",
-            populate: {
-              path: "sender",
-              select: "firstname lastname photo",
-            },
-          },
-          populate: {
-            path: "owner",
-            select: "firstname lastname photo",
-          },
-        })
-        .populate("appointments")
-        .populate("reviews")
-        .exec()
-        .then((docs) => {
-          console.log(docs);
-          res.status(200).json(docs);
-        })
-        .catch((err) => {
-          console.log(err);
+    const user = User.find({ email: req.session.user.email })
+      .select("_id")
+      .exec()
+      .then((docs) => {
+        console.log(docs);
+        console.log("user._id", docs[0]._id.toString());
+        const userId = docs[0]._id.toString();
+        if (userId == profileId) {
+          console.log("user._id == profileId");
+          User.find({ _id: userId })
+            .populate({
+              path: "posts",
+              populate: {
+                path: "comments",
+                populate: {
+                  path: "sender",
+                  select: "firstname lastname photo",
+                },
+              },
+              populate: {
+                path: "owner",
+                select: "firstname lastname photo",
+              },
+            })
+            .populate("appointments")
+            .populate("reviews")
+            .exec()
+            .then((docs) => {
+              console.log(docs);
+              res.status(200).json(docs);
+            })
+            .catch((err) => {
+              console.log(err);
+              res.status(500).json({
+                error: err,
+              });
+            });
+        } else {
+          // error
+          console.log("user._id != profileId");
           res.status(500).json({
-            error: err,
+            error: "user._id != profileId",
           });
+        }
+
+        return docs;
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          error: err,
         });
-    } else {
-      // error
-    }
+      });
   } else {
-    User.find({ email: req.session.user })
+    User.find({ _id: profileId })
       .populate({
         path: "posts",
         populate: {
@@ -225,10 +244,9 @@ router.get("/profile", async (req, res) => {
 });
 
 //--------------------------------------------------------
-/*
 
 router.get("/:userid", (req, res) => {
-  console.log(" userid " + req.params.userid);
+  //console.log(" userid " + req.params.userid);
   User.find({ _id: { $ne: req.params.userid } })
     .select("firstname lastname _id photo")
     .exec()
@@ -257,6 +275,5 @@ router.get("/:userid", (req, res) => {
       });
     });
 });
-*/
 
 module.exports = router;

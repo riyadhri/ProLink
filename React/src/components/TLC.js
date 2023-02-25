@@ -97,7 +97,7 @@ export default function TLC({
   postownerimage,
 }) {
   const { user, setUser } = useContext(CurrentUserContext);
-  console.log("postlikes" + postLikes.likeinfo);
+  //console.log("postlikes" + postLikes.likeinfo);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -114,7 +114,6 @@ export default function TLC({
 
   const handleClicklike = () => {
     if (containsString) {
-      console.log(postId);
       axios.post(API_URL + "/posts/dislike", {
         postId: postId,
         sender: user._id,
@@ -126,7 +125,7 @@ export default function TLC({
       });
     }
   };
-  console.log(postLikes.likeinfo);
+  // console.log(postLikes.likeinfo);
 
   const containsString = postLikes.likeinfo.some((obj) => {
     return Object.values(obj).some((val) => {
@@ -134,7 +133,7 @@ export default function TLC({
     });
   });
 
-  console.log(containsString);
+  //console.log(containsString);
 
   return (
     <>

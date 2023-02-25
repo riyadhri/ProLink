@@ -97,7 +97,7 @@ export default function BasicModal() {
 
   const mutation = useMutation(
     (newUser) => {
-      return axios.post(API_URL + "/auth/signup", newUser, {
+      return axios.post("http://localhost:3000/auth/signup", newUser, {
         headers: {
           "Content-Type": "application/json",
           Accept: "*/*",

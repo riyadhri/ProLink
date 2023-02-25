@@ -74,7 +74,10 @@ function App() {
                 <Route path="Profile/:profileId" element={<Profile />} />
                 <Route path="/ChatMobile" element={<ChatMobile />} />
                 <Route element={<ProtectedRoutes />}>
-                  <Route path="/EditProfile" element={<EditProfile />} />
+                  <Route
+                    path="/EditProfile/:profileId"
+                    element={<EditProfile />}
+                  />
                 </Route>
                 <Route path="*" element={<Search />} />
               </Routes>
