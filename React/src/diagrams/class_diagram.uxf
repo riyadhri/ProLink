@@ -1,0 +1,214 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>11</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>495</x><y>803</y><w>253</w><h>572</h></coordinates><panel_attributes>user
+--
+-_id: Long
+-name : string
+-location : address
+-password: string
+-followers : int 
+-following : int
+-rating : int
+-skills : [string]
+-email : string
+-phone : string
+-photo : binary
+-locationinmap : object
+-job : string
+-birthday : date
+-gender : string 
+-socialmedia: object
+-language : string
+-certificates : array 
+-experiences : array
+--
+createUser()
+updateUser()
+deleteUser()
+getRating()
+getSkills()
+addSkill(skill)
+removeSkill(skill)
+getExperiences()
+addExperiences(Experiences)
+removeExperiences(Experiences)
+getCertificate()
+addCertificate(Certificate)
+removeCertificate(Certificate)
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>66</x><y>869</y><w>231</w><h>165</h></coordinates><panel_attributes>session
+--
+-id: string
+-expires : date
+-session : object
+--
+createSession()
+getSession(sessionId)
+updateSession(sessionId)
+deleteSession(sessionId)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>11</x><y>0</y><w>231</w><h>275</h></coordinates><panel_attributes>post
+--
+-id: string
+-userId : string
+-likes : int
+-shares : int 
+-description : string
+-date : date
+-photos : array
+-videos : array
+-owner : string
+--
+createpost()
+deletepost()
+updatepost()
+getposts()
+getpostsByowner()
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>627</x><y>154</y><w>231</w><h>209</h></coordinates><panel_attributes>comment
+--
+-_id: int 
+-postId : string
+-sender : string
+-date : date 
+-value : string
+likes : int
+--
+addcomment()
+deletecomment()
+updatecomment()
+likecomment()
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>396</x><y>462</y><w>231</w><h>165</h></coordinates><panel_attributes>like
+--
+-_id: int 
+-postId : string
+-sender : string
+-date : date 
+--
+likePost()
+unlikePost()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>968</x><y>495</y><w>231</w><h>154</h></coordinates><panel_attributes>share
+--
+-_id: int 
+-postId : string
+-sender : string
+-date : date 
+--
+Sharepost(postId, userId)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1540</x><y>781</y><w>231</w><h>231</h></coordinates><panel_attributes>project
+--
+-id: int
+-userId : string
+-media : array
+-description : string
+-link : string
+date : date 
+--
+addproject()
+deleteproject()
+updateproject()
+getprojects()
+getprojectByuserId()
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>990</x><y>979</y><w>231</w><h>209</h></coordinates><panel_attributes>review
+--
+-_id: string 
+-userId : string
+-sender : string 
+-date : date 
+review : string 
+rating : int 
+
+--
+createReview()
+updateReview()
+deleteReview()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>55</x><y>1056</y><w>264</w><h>264</h></coordinates><panel_attributes>appointment
+--
+-id: int
+-user1 : string
+user2 : string
+date : date
+location : adress 
+--
+createAppointment()
+updateAppointment()
+deleteAppointment()
+scheduleAppointment(user1, user2, date, location)
+rescheduleAppointment(appointmentId, newDate, newLocation)
+cancelAppointment(appointmentId)
+sendReminder(appointmentId)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>550</y><w>231</w><h>165</h></coordinates><panel_attributes>report
+--
+-id: int
+-reporter : string.
+-reported : string
+-reason : string
+-date : date
+--
+addreport()
+deletereport()
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>363</x><y>1419</y><w>231</w><h>209</h></coordinates><panel_attributes>message
+--
+-id: string
+-message : string
+-users : array
+-sender : string
+-date : date
+--
+createMessage()
+deleteMessage()
+sendMessage(sender, recipients, message)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>682</x><y>1419</y><w>231</w><h>209</h></coordinates><panel_attributes>notification
+--
+-_id: int
+-userId : string
+-sender: string
+-type : string
+date : date
+isread : boolean
+details : string
+--
+markAsRead()
+getNotificationDetails()
+deleteNotification()
+sendNotification()
+createNotification()
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>990</x><y>1254</y><w>231</w><h>209</h></coordinates><panel_attributes>followers_following
+--
+-_id: string
+-followers : array 
+-following : array 
+-userId : string
+--
+getFollowers()
+getFollowing()
+addFollower()
+removeFollower()
+addFollowing()
+removeFollowing()</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>286</x><y>902</y><w>220</w><h>55</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1
+</panel_attributes><additional_attributes>10;20;180;20</additional_attributes></element><element><id>Relation</id><coordinates><x>308</x><y>1177</y><w>209</w><h>44</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=2</panel_attributes><additional_attributes>10;10;170;10</additional_attributes></element><element><id>Relation</id><coordinates><x>495</x><y>1364</y><w>55</w><h>77</h></coordinates><panel_attributes>lt=-
+m1=2
+m2=0..n
+</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>682</x><y>1364</y><w>55</w><h>77</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=0..n
+</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>737</x><y>1265</y><w>275</w><h>44</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;230;10</additional_attributes></element><element><id>Relation</id><coordinates><x>737</x><y>1001</y><w>275</w><h>44</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=0..n</panel_attributes><additional_attributes>10;10;230;10</additional_attributes></element><element><id>Relation</id><coordinates><x>121</x><y>264</y><w>396</w><h>572</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1</panel_attributes><additional_attributes>10;10;10;120;140;120;140;490;340;490</additional_attributes></element><element><id>Relation</id><coordinates><x>737</x><y>902</y><w>825</w><h>44</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=0..n</panel_attributes><additional_attributes>10;10;730;10</additional_attributes></element><element><id>Relation</id><coordinates><x>132</x><y>704</y><w>385</w><h>165</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1</panel_attributes><additional_attributes>10;10;10;120;330;120</additional_attributes></element><element><id>Relation</id><coordinates><x>231</x><y>242</y><w>242</w><h>242</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=0..n</panel_attributes><additional_attributes>10;10;180;10;180;200</additional_attributes></element><element><id>Relation</id><coordinates><x>231</x><y>165</y><w>418</w><h>44</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1</panel_attributes><additional_attributes>360;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>231</x><y>99</y><w>891</w><h>418</h></coordinates><panel_attributes>lt=-
+m1=1
+m2=0..n</panel_attributes><additional_attributes>10;10;760;10;770;360</additional_attributes></element><element><id>Relation</id><coordinates><x>517</x><y>616</y><w>55</w><h>209</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1</panel_attributes><additional_attributes>10;10;10;170</additional_attributes></element><element><id>Relation</id><coordinates><x>649</x><y>352</y><w>66</w><h>473</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1</panel_attributes><additional_attributes>20;10;10;410</additional_attributes></element><element><id>Relation</id><coordinates><x>737</x><y>638</y><w>319</w><h>231</h></coordinates><panel_attributes>lt=-
+m1=0..n
+m2=1</panel_attributes><additional_attributes>250;10;250;180;10;180</additional_attributes></element></diagram>

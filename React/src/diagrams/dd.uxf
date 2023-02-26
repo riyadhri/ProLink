@@ -1,0 +1,17 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLDeployment</id><coordinates><x>0</x><y>100</y><w>260</w><h>350</h></coordinates><panel_attributes>&lt;&lt;device&gt;&gt;
+UserClient</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>20</x><y>160</y><w>200</w><h>240</h></coordinates><panel_attributes>&lt;&lt;execution environment&gt;&gt;
+web browser</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>40</x><y>250</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+React app</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>450</x><y>50</y><w>330</w><h>510</h></coordinates><panel_attributes>&lt;&lt;device&gt;&gt;
+WebServer</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>470</x><y>110</y><w>290</w><h>440</h></coordinates><panel_attributes>&lt;&lt;execution environment&gt;&gt;
+Node js</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>540</x><y>240</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+
+application logic</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>540</x><y>330</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+
+express-middlewares</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>540</x><y>420</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+
+Route handler</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>930</x><y>160</y><w>230</w><h>330</h></coordinates><panel_attributes>&lt;&lt;device&gt;&gt;
+Dtabase Server</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLGeneric</id><coordinates><x>950</x><y>290</y><w>140</w><h>80</h></coordinates><panel_attributes>symbol=component
+
+MongoDb</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLDeployment</id><coordinates><x>510</x><y>200</y><w>210</w><h>340</h></coordinates><panel_attributes>express app </panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>170</x><y>280</y><w>360</w><h>40</h></coordinates><panel_attributes>lt=-
+HTTP Protocol</panel_attributes><additional_attributes>10;20;340;20</additional_attributes></element><element><id>Relation</id><coordinates><x>710</x><y>310</y><w>260</w><h>40</h></coordinates><panel_attributes>lt=-
+DB Driver </panel_attributes><additional_attributes>10;20;240;20</additional_attributes></element></diagram>
