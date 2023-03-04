@@ -8,7 +8,7 @@ require("dotenv").config();
 
 // test api
 router.get("/test", (req, res, next) => {
-  console.log(req.session.user);
+  // console.log(req.session.user);
   res.status(200).json({
     message: "test api",
   });

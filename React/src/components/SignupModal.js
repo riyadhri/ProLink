@@ -21,7 +21,7 @@ import axios from "axios";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { CurrentUserContext } from "./../CurrentUserContext";
+import { CurrentUserContext } from "../Contexts/CurrentUserContext";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import API_URL from "../services/API_URL";

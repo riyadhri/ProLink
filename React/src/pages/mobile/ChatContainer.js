@@ -6,7 +6,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Videocallmodal from "../../components/Videocallmodal";
 import axios from "axios";
 import { useContext } from "react";
-import { CurrentUserContext } from "../../CurrentUserContext";
+import { CurrentUserContext } from "../../Contexts/CurrentUserContext";
 import SendIcon from "@mui/icons-material/Send";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";

@@ -12,7 +12,7 @@ import {
 import axios from "axios";
 import API_URL from "../services/API_URL";
 import { useContext } from "react";
-import { CurrentUserContext } from "./../CurrentUserContext";
+import { CurrentUserContext } from "../Contexts/CurrentUserContext";
 
 const Postinput = () => {
   const { user, setUser } = useContext(CurrentUserContext);

@@ -154,21 +154,24 @@ router.get("/profile", async (req, res) => {
   const isMyprofile = req.query.isMyprofile;
   const profileId = req.query.profileId;
 
-  console.log("user", req.session.user);
-  console.log("isMyprofile", isMyprofile);
-  console.log("profileId", profileId);
+  //console.log("user", req.session.user);
+  //console.log("isMyprofile", isMyprofile);
+  //console.log("profileId", profileId);
 
   if (isMyprofile == "true") {
     const user = User.find({ email: req.session.user.email })
       .select("_id")
       .exec()
       .then((docs) => {
-        console.log(docs);
-        console.log("user._id", docs[0]._id.toString());
+        // console.log(docs);
+        //console.log("user._id", docs[0]._id.toString());
         const userId = docs[0]._id.toString();
         if (userId == profileId) {
-          console.log("user._id == profileId");
+          //console.log("user._id == profileId");
           User.find({ _id: userId })
+            // lookup for followers_following
+            .populate("appointments")
+            .populate("reviews")
             .populate({
               path: "posts",
               populate: {
@@ -183,11 +186,10 @@ router.get("/profile", async (req, res) => {
                 select: "firstname lastname photo",
               },
             })
-            .populate("appointments")
-            .populate("reviews")
+
             .exec()
             .then((docs) => {
-              console.log(docs);
+              // console.log(docs);
               res.status(200).json(docs);
             })
             .catch((err) => {
@@ -198,7 +200,7 @@ router.get("/profile", async (req, res) => {
             });
         } else {
           // error
-          console.log("user._id != profileId");
+          //console.log("user._id != profileId");
           res.status(500).json({
             error: "user._id != profileId",
           });
@@ -231,7 +233,7 @@ router.get("/profile", async (req, res) => {
       .populate("reviews")
       .exec()
       .then((docs) => {
-        console.log(docs);
+        // console.log(docs);
         res.status(200).json(docs);
       })
       .catch((err) => {

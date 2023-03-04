@@ -11,7 +11,7 @@ router.post("/getmsg", async (req, res, next) => {
         $all: [from, to],
       },
     }).sort({ updatedAt: 1 });
-    console.log(messages);
+    //console.log(messages);
 
     const projectedMessages = messages.map((msg) => {
       return {
@@ -20,7 +20,7 @@ router.post("/getmsg", async (req, res, next) => {
       };
     });
 
-    console.log("projectedMessages" + projectedMessages);
+    //console.log("projectedMessages" + projectedMessages);
     res.json(projectedMessages);
   } catch (ex) {
     next(ex);
@@ -30,7 +30,7 @@ router.post("/getmsg", async (req, res, next) => {
 router.post("/addmsg", async (req, res, next) => {
   try {
     const { from, to, message } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     const data = await Message.create({
       message: { text: message },
       users: [from, to],

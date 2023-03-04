@@ -9,7 +9,7 @@ import API_URL from "../services/API_URL";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import { useContext } from "react";
-import { CurrentUserContext } from "./../CurrentUserContext";
+import { CurrentUserContext } from "../Contexts/CurrentUserContext";
 function EditProfile() {
   const [profile, setProfile] = React.useState({});
 

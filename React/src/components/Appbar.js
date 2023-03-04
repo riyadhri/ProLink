@@ -23,7 +23,10 @@ import Notificationsicon from "./Notificationsicon";
 import TemporaryDrawer from "./Temporarydrawer";
 import { Searchinputs } from "./Searchinputs";
 import { useContext } from "react";
-import { CurrentUserContext } from "./../CurrentUserContext";
+import { CurrentUserContext } from "../Contexts/CurrentUserContext";
+
+import { Link as RouterLink } from "react-router-dom";
+import { Link as MuiLink } from "@mui/material";
 function Appbar() {
   // create use state isAuth
   const { user, setUser } = useContext(CurrentUserContext);
@@ -37,8 +40,16 @@ function Appbar() {
           <Grid item xs={1} sx={{ display: { md: "none" } }}>
             <TemporaryDrawer />
           </Grid>
+          <Grid item xs={1}>
+            <MuiLink
+              component={RouterLink}
+              to={"/"}
+              //relative="path"
+            >
+              back
+            </MuiLink>
+          </Grid>
 
-          <Grid item xs={1}></Grid>
           <Grid
             item
             md={9}

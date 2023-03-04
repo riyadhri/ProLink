@@ -7,7 +7,7 @@ const MongoStore = require("connect-mongo");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const socket = require("socket.io");
-
+const User = require("./models/user");
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 mongoose.connect("mongodb://127.0.0.1:27017/ServicesLink");
@@ -67,7 +67,21 @@ io.on("connection", (socket) => {
   socket.on("send-msg", (data) => {
     const sendUserSocket = onlineUsers.get(data.to);
     if (sendUserSocket) {
-      io.to(sendUserSocket).emit("msg-recieve", data.msg);
+      User.findOne(
+        { _id: data.from },
+        "firstname lastname _id photo",
+        (err, user) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log(user);
+          io.to(sendUserSocket).emit("msg-recieve", {
+            user: user,
+            msg: data.msg,
+          });
+        }
+      );
     }
   });
 
@@ -80,7 +94,7 @@ io.on("connection", (socket) => {
   //socket.emit("me", socket.id);
 
   socket.on("callUser", (data) => {
-    console.log("callUser", data);
+    // console.log("callUser", data);
     const sendUserSocket = onlineUsers.get(data.userToCall);
     if (sendUserSocket) {
       io.to(sendUserSocket).emit("callUser", {

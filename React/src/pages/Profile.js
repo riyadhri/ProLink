@@ -40,9 +40,9 @@ import axios from "axios";
 import API_URL from "../services/API_URL";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useContext } from "react";
-import { CurrentUserContext } from "./../CurrentUserContext";
+import { CurrentUserContext } from "../Contexts/CurrentUserContext";
 import { useParams } from "react-router-dom";
-
+import { ChatContext } from "../Contexts/ChatContext";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -71,11 +71,14 @@ function a11yProps(index) {
 }
 
 function Profile(props) {
+  const { setOpen, changeChat, setIsActivechatinput } = useContext(ChatContext);
+
   const [profile, setProfile] = React.useState({});
   const { profileId } = useParams();
 
   const { user, setUser } = useContext(CurrentUserContext);
   let isMyprofile = false;
+
   if (user._id == profileId) {
     isMyprofile = true;
   }
@@ -93,6 +96,7 @@ function Profile(props) {
         .then(function(response) {
           console.log(response);
           setProfile(response.data[0]);
+          console.log("profile", profile);
         });
 
     console.log(`ID parameter changed to ${profileId}`);
@@ -128,16 +132,6 @@ function Profile(props) {
     }
   );
 
-  //console.log(profile);
-  const [open, setOpen] = React.useState(false);
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   const [value, setValue] = React.useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -155,36 +149,47 @@ function Profile(props) {
     );
   };
 
+  // check if the user._id in followers.followers array
+  // state for isfollowing
+  const [isFollowing, setIsFollowing] = React.useState(false);
+
+  // create use effect
+
+  React.useEffect(() => {
+    const Following = () => {
+      let Following = false;
+      profile.followers &&
+        profile.followers.followers.forEach((follower) => {
+          if (follower._id == user._id) {
+            Following = true;
+          }
+        });
+      return Following;
+    };
+    setIsFollowing(Following());
+  }, []);
+
+  // handleClickfollow
+  const handleClickfollow = () => {
+    setIsFollowing(!isFollowing);
+
+    if (isFollowing) {
+      setNumberoflikes(nubmberoflikes - 1);
+      axios.post(API_URL + "/posts/dislike", {
+        postId: postId,
+        sender: user._id,
+      });
+    } else {
+      setNumberoflikes(nubmberoflikes + 1);
+      axios.post(API_URL + "/posts/addlike", {
+        postId: postId,
+        sender: user._id,
+      });
+    }
+  };
+
   return (
     <>
-      <div>
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle> Report User</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              To subscribe to this website, please enter your email address
-              here. We will send updates occasionally.
-            </DialogContentText>
-            <TextField
-              multiline
-              maxRows={4}
-              rows={4}
-              autoFocus
-              margin="dense"
-              id="name"
-              label="report"
-              type="text"
-              fullWidth
-              variant="standard"
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleClose}>Report</Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-
       <Appbar />
 
       <Box sx={{ p: { xs: 1, sm: 4 } }}>
@@ -261,28 +266,44 @@ function Profile(props) {
                     </Box>
                   </Box>
                 </Box>
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    flexWrap: "nowrap",
-                    p: 2,
-                  }}
-                >
-                  <Button variant="contained" size="small">
-                    <ChatBubbleIcon />
-                    <Typography variant="subtitle2"> Message</Typography>
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={handleClickOpen}
+                {isMyprofile ? (
+                  ""
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      flexWrap: "nowrap",
+                      p: 2,
+                    }}
                   >
-                    <PersonAddIcon />
-                    <Typography variant="subtitle2"> Follow</Typography>
-                  </Button>
-                </Box>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => {
+                        changeChat(profile);
+                        setOpen(true);
+                        setIsActivechatinput(true);
+                      }}
+                    >
+                      <ChatBubbleIcon />
+                      <Typography variant="subtitle2"> Message</Typography>
+                    </Button>
+
+                    {isFollowing ? (
+                      ""
+                    ) : (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        oncklick={handleClickfollow}
+                      >
+                        <PersonAddIcon />
+                        <Typography variant="subtitle2"> Follow</Typography>
+                      </Button>
+                    )}
+                  </Box>
+                )}
               </Box>
             </Paper>
           </Grid>
@@ -407,7 +428,7 @@ function Profile(props) {
                     fontWeight: "regular",
                   }}
                 >
-                  {profile.followers}
+                  {profile.followers && profile.followers.nb}
                 </Typography>
                 <Typography
                   noWrap
@@ -429,7 +450,7 @@ function Profile(props) {
                     fontWeight: "regular",
                   }}
                 >
-                  {profile.following}
+                  {profile.following && profile.following.nb}
                 </Typography>
               </Box>
 
@@ -462,7 +483,7 @@ function Profile(props) {
                   <Chip label="Work" />
                 </Divider>
 
-                {profile.project &&
+                {profile.projects &&
                   profile.projects.map((project, index) => {
                     return (
                       <Card sx={{ m: 1 }} key={index}>
@@ -575,17 +596,32 @@ function Profile(props) {
                         }}
                       >
                         <Avatar alt="Cindy Baker" src="" />
-                        <Typography> {appointment.user1} </Typography>
+                        <Typography> {appointment.user1} </Typography>{" "}
                         <Typography> {appointment.user2} </Typography>
                       </Box>
                       <Typography>
-                        {" "}
                         {appointment.date} {"  "}
                         {appointment.time}
                       </Typography>
                       <Typography> {appointment.location}</Typography>
                     </Paper>
                   ))}
+
+                <Paper key={555} sx={{ p: 2, mb: 1 }} elevation={10}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Avatar alt="Cindy Baker" src="" />
+                    <Typography> user 01 </Typography>
+                    <Typography> user 02 </Typography>
+                  </Box>
+                  <Typography>2013/02/28 10:00</Typography>
+                  <Typography> university </Typography>
+                </Paper>
               </TabPanel>
 
               <TabPanel

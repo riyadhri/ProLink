@@ -25,12 +25,12 @@ import { Avatar, Box, Typography } from "@mui/material";
 import Chat from "./components/Chat";
 import SearchResults from "./pages/SearchResults";
 import { createContext, useContext, useState } from "react";
-import { CurrentUserContext } from "./CurrentUserContext";
+import { CurrentUserContext } from "./Contexts/CurrentUserContext";
 import { useAuth } from "./services/ProtectedRoutes";
 import Vid from "./components/vid";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import ChatMobile from "./pages/mobile/ChatMobile";
-
+import { ChatContextProvider } from "./Contexts/ChatContext";
 const queryClient = new QueryClient();
 
 function App() {
@@ -63,26 +63,28 @@ function App() {
             setUser,
           }}
         >
-          {user._id ? (mobile ? "" : inputList) : ""}
-          <QueryClientProvider client={queryClient}>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Search />} />
-                <Route path="/vid" element={<Vid />} />
-                <Route path="SearchResults" element={<SearchResults />} />
-                <Route path="Profile/:profileId" element={<Profile />} />
-                <Route path="/ChatMobile" element={<ChatMobile />} />
-                <Route element={<ProtectedRoutes />}>
-                  <Route
-                    path="/EditProfile/:profileId"
-                    element={<EditProfile />}
-                  />
-                </Route>
-                <Route path="*" element={<Search />} />
-              </Routes>
-            </BrowserRouter>
-          </QueryClientProvider>
+          <ChatContextProvider>
+            {user._id ? (mobile ? "" : inputList) : ""}
+            <QueryClientProvider client={queryClient}>
+              <ReactQueryDevtools initialIsOpen={false} />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Search />} />
+                  <Route path="/vid" element={<Vid />} />
+                  <Route path="SearchResults" element={<SearchResults />} />
+                  <Route path="Profile/:profileId" element={<Profile />} />
+                  <Route path="/ChatMobile" element={<ChatMobile />} />
+                  <Route element={<ProtectedRoutes />}>
+                    <Route
+                      path="/EditProfile/:profileId"
+                      element={<EditProfile />}
+                    />
+                  </Route>
+                  <Route path="*" element={<Search />} />
+                </Routes>
+              </BrowserRouter>
+            </QueryClientProvider>
+          </ChatContextProvider>
         </CurrentUserContext.Provider>
       </ThemeProvider>
     </>

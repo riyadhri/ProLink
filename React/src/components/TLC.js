@@ -20,9 +20,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import FlagIcon from "@mui/icons-material/Flag";
-
+import { Link as RouterLink } from "react-router-dom";
+import { Link as MuiLink } from "@mui/material";
 import { useContext } from "react";
-import { CurrentUserContext } from "./../CurrentUserContext";
+import { CurrentUserContext } from "../Contexts/CurrentUserContext";
 import { useMutation, useQueryClient } from "react-query";
 import axios from "axios";
 import API_URL from "../services/API_URL";
@@ -112,13 +113,29 @@ export default function TLC({
     setExpanded(!expanded);
   };
 
+  const [wasliked, setWasliked] = React.useState(null);
+  const [nubmberoflikes, setNumberoflikes] = React.useState(postLikes.number);
+
+  React.useEffect(() => {
+    const containsString = postLikes.likeinfo.some((obj) => {
+      return Object.values(obj).some((val) => {
+        return val.includes(user._id);
+      });
+    });
+    setWasliked(containsString);
+  }, []);
+
   const handleClicklike = () => {
-    if (containsString) {
+    setWasliked(!wasliked);
+
+    if (wasliked) {
+      setNumberoflikes(nubmberoflikes - 1);
       axios.post(API_URL + "/posts/dislike", {
         postId: postId,
         sender: user._id,
       });
     } else {
+      setNumberoflikes(nubmberoflikes + 1);
       axios.post(API_URL + "/posts/addlike", {
         postId: postId,
         sender: user._id,
@@ -126,13 +143,6 @@ export default function TLC({
     }
   };
   // console.log(postLikes.likeinfo);
-
-  const containsString = postLikes.likeinfo.some((obj) => {
-    return Object.values(obj).some((val) => {
-      return val.includes(user._id);
-    });
-  });
-
   //console.log(containsString);
 
   return (
@@ -168,16 +178,30 @@ export default function TLC({
 
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-              {postOwner.firstname.charAt(0)}
-            </Avatar>
+            <MuiLink
+              component={RouterLink}
+              to={`/profile/${user._id}`}
+              //relative="path"
+            >
+              <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+                {postOwner.firstname.charAt(0)}
+              </Avatar>
+            </MuiLink>
           }
           action={
             <IconButton aria-label="settings" onClick={handleClick}>
               <MoreVertIcon />
             </IconButton>
           }
-          title={postOwner.firstname + " " + postOwner.lastname}
+          title={
+            <MuiLink
+              component={RouterLink}
+              to={`/profile/${postOwner._id}`}
+              //relative="path"
+            >
+              {postOwner.firstname + " " + postOwner.lastname}
+            </MuiLink>
+          }
           subheader={postDate}
         />
         <CardContent>
@@ -199,11 +223,11 @@ export default function TLC({
         >
           <IconButton
             aria-label="add to favorites"
-            color={containsString ? "error" : "default"}
+            color={wasliked ? "error" : "default"}
             onClick={handleClicklike}
           >
             <FavoriteIcon />
-            {postLikes.number}
+            {nubmberoflikes}
           </IconButton>
 
           <ExpandMore

@@ -6,8 +6,14 @@ const userSchema = new mongoose.Schema({
   lastname: { type: String, required: true },
   password: { type: String, required: true },
   job: { type: String },
-  followers: { type: Number, required: true },
-  following: { type: Number, required: true },
+  followers: {
+    nb: { type: Number, required: true },
+    followers: [{ type: String, required: true }],
+  },
+  following: {
+    nb: { type: Number, required: true },
+    following: [{ type: String, required: true }],
+  },
   location: {
     wilaya: { type: String, required: true },
     daira: { type: String, required: true },

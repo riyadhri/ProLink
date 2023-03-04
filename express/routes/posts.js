@@ -30,7 +30,7 @@ router.get("/", async (req, res) => {
         select: "firstname lastname photo",
       });
     res.send(posts);
-    console.log(posts);
+    //console.log(posts);
   } catch (err) {
     res.json({ message: err });
   }
@@ -149,7 +149,7 @@ router.post("/addlike", async (req, res) => {
 
 // delete like using likeID , and delete from array in post
 router.post("/dislike", async (req, res) => {
-  console.log("Received a DELETE request");
+  //console.log("Received a DELETE request");
   try {
     // delete like where sender == req.body.sender
     // and postId == req.body.postId
@@ -166,7 +166,7 @@ router.post("/dislike", async (req, res) => {
     await post.save();
     res.json(removedLike);
   } catch (err) {
-    console.log("Received a DELETE request  error");
+    // console.log("Received a DELETE request  error");
 
     res.json({ message: err });
   }

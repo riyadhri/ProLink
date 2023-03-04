@@ -6,7 +6,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Videocallmodal from "./Videocallmodal";
 import axios from "axios";
 import { useContext } from "react";
-import { CurrentUserContext } from "./../CurrentUserContext";
+import { CurrentUserContext } from "../Contexts/CurrentUserContext";
 import SendIcon from "@mui/icons-material/Send";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
@@ -22,6 +22,7 @@ const ChatContainer = ({
   isActive,
   setIsActive,
   handleClick,
+  changeChat,
 }) => {
   const { user, setUser } = useContext(CurrentUserContext);
   //console.log(user);
@@ -92,8 +93,13 @@ const ChatContainer = ({
   }, [messages]);
 
   socket.current &&
-    socket.current.on("msg-recieve", (msg) => {
-      setArrivalMessage({ fromSelf: false, message: msg });
+    socket.current.on("msg-recieve", (data) => {
+      setArrivalMessage({ fromSelf: false, message: data.msg });
+      console.log("from user" + data.user);
+      console.log("msg" + data.msg);
+      changeChat(data.user);
+      setOpen(true);
+      setIsActive(true);
     });
 
   return (
