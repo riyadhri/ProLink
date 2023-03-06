@@ -10,6 +10,7 @@ require("../models/appointment");
 require("../models/review");
 require("../models/comment");
 const router = require("express").Router();
+const Follower = require("../models/follower");
 
 // get Suggested accounts randomly
 router.get("/suggested", async (req, res) => {
@@ -276,6 +277,93 @@ router.get("/:userid", (req, res) => {
         error: err,
       });
     });
+});
+
+// folloW system
+
+// Create a new follower relationship
+router.post("/followers", async (req, res) => {
+  try {
+    const { profileId, sender } = req.body;
+    console.log("sender", sender);
+    console.log("profileId", profileId);
+    // Make sure both sender and profile exist
+    const [senderUser, profileUser] = await Promise.all([
+      User.findById(sender),
+      User.findById(profileId),
+    ]);
+
+    if (!senderUser || !profileUser) {
+      return res.status(404).send("User not found");
+    }
+
+    const follower = new Follower({
+      // add _id
+      _id: new mongoose.Types.ObjectId(),
+      followerId: sender,
+      followingId: profileId,
+    });
+
+    console.log("follower", follower);
+    await follower.save();
+    res.status(201).send(follower);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+// Unfollow a user
+router.delete("/followers/:profileId/:sender", async (req, res) => {
+  try {
+    const { profileId, sender } = req.params;
+
+    const follower = await Follower.findOne({
+      followerId: sender,
+      followingId: profileId,
+    });
+
+    if (!follower) {
+      return res.status(404).send("Follower relationship not found");
+    }
+
+    await follower.remove();
+    res.send("Unfollowed successfully");
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// Get a user's followers and following
+router.get("/:profileId/followers", async (req, res) => {
+  try {
+    const { profileId } = req.params;
+    // console.log("profileId" + "'" + profileId + "'");
+    //const test = await Follower.find({ followingId: profileId });
+    //console.log("test", test);
+
+    const [followers, following] = await Promise.all([
+      Follower.find({ followingId: profileId }).populate({
+        path: "followerId",
+        select: "firstname lastname photo",
+      }),
+      Follower.find({ followerId: profileId }).populate({
+        path: "followingId",
+        select: "firstname lastname photo",
+      }),
+    ]);
+
+    //console.log("followers", followers);
+    //console.log("following", following);
+    const followerProfiles = followers.map((follower) => follower.followerId);
+    const followingProfiles = following.map(
+      (following) => following.followingId
+    );
+    //console.log("followerProfiles", followerProfiles);
+
+    res.send({ followers: followerProfiles, following: followingProfiles });
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
 module.exports = router;

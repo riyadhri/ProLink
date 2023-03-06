@@ -152,21 +152,36 @@ function Profile(props) {
   // check if the user._id in followers.followers array
   // state for isfollowing
   const [isFollowing, setIsFollowing] = React.useState(false);
+  const [numberOffollow, setNumberOffollow] = React.useState(0);
+  const [numberOffollowing, setNumberOffollowing] = React.useState(0);
 
   // create use effect
-
   React.useEffect(() => {
-    const Following = () => {
-      let Following = false;
-      profile.followers &&
-        profile.followers.followers.forEach((follower) => {
-          if (follower._id == user._id) {
-            Following = true;
-          }
-        });
-      return Following;
-    };
-    setIsFollowing(Following());
+    // get followers
+    axios
+      .get(API_URL + "/users/" + profileId + "/followers")
+      .then((res) => {
+        console.log("followers : " + JSON.stringify(res.data));
+        setNumberOffollow(res.data.followers.length);
+        setNumberOffollowing(res.data.following.length);
+
+        const Following = () => {
+          let Following = false;
+
+          res.data.followers.forEach((follower) => {
+            console.log("follower._id : " + follower._id);
+            console.log("user._id : " + user._id);
+
+            if (follower._id == user._id) {
+              Following = true;
+            }
+          });
+          //console.log("bool Following : " + Following);
+          return Following;
+        };
+        setIsFollowing(Following());
+      })
+      .catch((err) => console.log(err));
   }, []);
 
   // handleClickfollow
@@ -174,15 +189,12 @@ function Profile(props) {
     setIsFollowing(!isFollowing);
 
     if (isFollowing) {
-      setNumberoflikes(nubmberoflikes - 1);
-      axios.post(API_URL + "/posts/dislike", {
-        postId: postId,
-        sender: user._id,
-      });
+      setNumberOffollow(numberOffollow - 1);
+      axios.delete(API_URL + "/users/followers/" + profileId + "/" + user._id);
     } else {
-      setNumberoflikes(nubmberoflikes + 1);
-      axios.post(API_URL + "/posts/addlike", {
-        postId: postId,
+      setNumberOffollow(numberOffollow + 1);
+      axios.post(API_URL + "/users/followers", {
+        profileId: profileId,
         sender: user._id,
       });
     }
@@ -291,12 +303,20 @@ function Profile(props) {
                     </Button>
 
                     {isFollowing ? (
-                      ""
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={handleClickfollow}
+                        collor="success"
+                      >
+                        <PersonAddIcon />
+                        <Typography variant="subtitle2"> following</Typography>
+                      </Button>
                     ) : (
                       <Button
                         variant="contained"
                         size="small"
-                        oncklick={handleClickfollow}
+                        onClick={handleClickfollow}
                       >
                         <PersonAddIcon />
                         <Typography variant="subtitle2"> Follow</Typography>
@@ -428,7 +448,7 @@ function Profile(props) {
                     fontWeight: "regular",
                   }}
                 >
-                  {profile.followers && profile.followers.nb}
+                  {numberOffollow}
                 </Typography>
                 <Typography
                   noWrap
@@ -450,7 +470,7 @@ function Profile(props) {
                     fontWeight: "regular",
                   }}
                 >
-                  {profile.following && profile.following.nb}
+                  {numberOffollowing}
                 </Typography>
               </Box>
 
