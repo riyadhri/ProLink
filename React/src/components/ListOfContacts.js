@@ -50,9 +50,9 @@ const ListOfContacts = ({
             zIndex: 2,
           }}
         >
-          {console.log(
-            "list of contacts  : " + contacts.users && contacts.users
-          )}
+          {
+            //console.log("list of contacts  : " + contacts.users && contacts.users)
+          }
           {contacts.users &&
             contacts.users.map((contact, index) => (
               <Box

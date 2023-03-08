@@ -19,7 +19,8 @@ import {
 } from "react-hook-form";
 import { useMutation } from "react-query";
 import axios from "axios";
-
+import { location } from "./location";
+import { jobs } from "./jobs";
 export const Searchinputs = () => {
   const navigate = useNavigate();
   let defaultValues = {
@@ -67,7 +68,8 @@ export const Searchinputs = () => {
     }
     */
   };
-
+  // @ts-ignore
+  const wilayaNames = [...new Set(location.map((loc) => loc.wilaya_name))];
   return (
     <>
       <Box
@@ -127,9 +129,13 @@ export const Searchinputs = () => {
                   "& .MuiSelect-select": { pt: 1.7, pb: 1.7 },
                 }}
               >
-                <MenuItem value="freelancer">freelancer</MenuItem>
-                <MenuItem value="designer">designer</MenuItem>
-                <MenuItem value="programmer">programmer</MenuItem>
+                {jobs.map((job, index) => {
+                  return (
+                    <MenuItem key={index} value={job}>
+                      {job}
+                    </MenuItem>
+                  );
+                })}
               </Select>
             </FormControl>
           )}
@@ -154,9 +160,14 @@ export const Searchinputs = () => {
                   "& .MuiSelect-select": { pt: 1.7, pb: 1.7 },
                 }}
               >
-                <MenuItem value="freelancer">freelancer</MenuItem>
-                <MenuItem value="designer">designer</MenuItem>
-                <MenuItem value="programmer">programmer</MenuItem>
+                {wilayaNames &&
+                  wilayaNames.map((wilayaName, index) => {
+                    return (
+                      <MenuItem key={index} value={wilayaName}>
+                        {wilayaName}
+                      </MenuItem>
+                    );
+                  })}
               </Select>
             </FormControl>
           )}

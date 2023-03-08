@@ -6,8 +6,8 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 require("dotenv").config();
 require("../models/post");
-require("../models/appointment");
-require("../models/review");
+const Appointment = require("../models/appointment");
+const Review = require("../models/review");
 require("../models/comment");
 const router = require("express").Router();
 const Follower = require("../models/follower");
@@ -171,8 +171,20 @@ router.get("/profile", async (req, res) => {
           //console.log("user._id == profileId");
           User.find({ _id: userId })
             // lookup for followers_following
-            .populate("appointments")
-            .populate("reviews")
+            .populate({
+              path: "appointments",
+              populate: {
+                path: "sender receiver",
+                select: "firstname lastname photo",
+              },
+            })
+            .populate({
+              path: "reviews",
+              populate: {
+                path: "sender",
+                select: "firstname lastname photo",
+              },
+            })
             .populate({
               path: "posts",
               populate: {
@@ -190,7 +202,7 @@ router.get("/profile", async (req, res) => {
 
             .exec()
             .then((docs) => {
-              // console.log(docs);
+              // console.log(JSON.stringify(docs));
               res.status(200).json(docs);
             })
             .catch((err) => {
@@ -231,7 +243,13 @@ router.get("/profile", async (req, res) => {
           select: "firstname lastname photo",
         },
       })
-      .populate("reviews")
+      .populate({
+        path: "reviews",
+        populate: {
+          path: "sender",
+          select: "firstname lastname photo",
+        },
+      })
       .exec()
       .then((docs) => {
         // console.log(docs);
@@ -285,8 +303,8 @@ router.get("/:userid", (req, res) => {
 router.post("/followers", async (req, res) => {
   try {
     const { profileId, sender } = req.body;
-    console.log("sender", sender);
-    console.log("profileId", profileId);
+    //  console.log("sender", sender);
+    // console.log("profileId", profileId);
     // Make sure both sender and profile exist
     const [senderUser, profileUser] = await Promise.all([
       User.findById(sender),
@@ -304,7 +322,7 @@ router.post("/followers", async (req, res) => {
       followingId: profileId,
     });
 
-    console.log("follower", follower);
+    // console.log("follower", follower);
     await follower.save();
     res.status(201).send(follower);
   } catch (error) {
@@ -363,6 +381,107 @@ router.get("/:profileId/followers", async (req, res) => {
     res.send({ followers: followerProfiles, following: followingProfiles });
   } catch (error) {
     res.status(500).send(error);
+  }
+});
+
+// api to recieve appointment  , sender , reciever , date and time , location , and push the id to the user (reciever
+router.post("/appointments", async (req, res) => {
+  try {
+    const { sender, receiver, date, location } = req.body;
+
+    //  console.log("sender", sender);
+    // console.log("receiver", receiver);
+    // console.log("date", date);
+    // console.log("location", location);
+
+    // Make sure both sender and profile exist
+    const [senderUser, receiverUser] = await Promise.all([
+      User.findById(sender),
+      User.findById(receiver),
+    ]);
+
+    if (!senderUser || !receiverUser) {
+      return res.status(404).send("User not found");
+    }
+
+    const appointment = new Appointment({
+      // add _id
+      _id: new mongoose.Types.ObjectId(),
+      sender: sender,
+      receiver: receiver,
+      date: date,
+      location: location,
+    });
+
+    // console.log("appointment", appointment);
+    await appointment.save();
+
+    // push the _id to the appointment array in user collection ( sender and receiver )
+
+    await User.findByIdAndUpdate(sender, {
+      $push: { appointments: appointment._id },
+    });
+    await User.findByIdAndUpdate(receiver, {
+      $push: { appointments: appointment._id },
+    });
+
+    res.status(201).send(appointment);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+// api to recieve appointment  , sender , reciever , rating , review , save the current date and time  , and push the id to the user (receiver)
+router.post("/reviews", async (req, res) => {
+  try {
+    const { sender, receiver, rating, review } = req.body;
+
+    // console.log("sender", sender);
+    // console.log("reciever", receiver);
+    // console.log("rating", rating);
+    // console.log("review", review);
+
+    // Make sure both sender and profile exist
+    const [senderUser, receiverUser] = await Promise.all([
+      User.findById(sender),
+      User.findById(receiver),
+    ]);
+
+    if (!senderUser || !receiverUser) {
+      return res.status(404).send("User not found");
+    }
+
+    // check if the sender has already reviewed the receiver
+    const check = await Review.findOne({
+      sender: sender,
+      receiver: receiver,
+    });
+
+    if (check) {
+      return res.status(404).send("You have already reviewed this user");
+    }
+
+    const newreview = new Review({
+      // add _id
+      _id: new mongoose.Types.ObjectId(),
+      sender: sender,
+      receiver: receiver,
+      rating: rating,
+      review: review,
+      date: new Date(),
+    });
+
+    //  console.log("review", review);
+    await newreview.save();
+
+    // push the _id to the reviews array in user collection
+
+    await User.findByIdAndUpdate(receiver, {
+      $push: { reviews: newreview._id },
+    });
+    res.status(201).send(newreview);
+  } catch (error) {
+    console.log(error);
   }
 });
 

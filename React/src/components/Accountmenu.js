@@ -16,11 +16,11 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useContext } from "react";
 import { CurrentUserContext } from "../Contexts/CurrentUserContext";
-
 export default function AccountMenu() {
   const theme = useTheme();
 
   const { user, setUser } = useContext(CurrentUserContext);
+  console.log(JSON.stringify(user));
   const matches = useMediaQuery(theme.breakpoints.up("sm"));
 
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ export default function AccountMenu() {
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
           >
-            <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+            <Avatar src={user.photo} sx={{ width: 32, height: 32 }} />
           </IconButton>
         </Tooltip>
       </Box>
@@ -85,10 +85,10 @@ export default function AccountMenu() {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={() => navigate("/profile/" + user._id)}>
-          <Avatar /> Profile
+          <Avatar src={user.photo} /> Profile
         </MenuItem>
         <MenuItem onClick={handleClose}>
-          <Avatar /> My account
+          <Avatar src={user.photo} /> My account
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleClose}>

@@ -9,6 +9,12 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { DateTimePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
 import {
   TextField,
   DialogContentText,
@@ -43,6 +49,12 @@ import { useContext } from "react";
 import { CurrentUserContext } from "../Contexts/CurrentUserContext";
 import { useParams } from "react-router-dom";
 import { ChatContext } from "../Contexts/ChatContext";
+import {
+  useForm,
+  Controller,
+  FormProvider,
+  useFormContext,
+} from "react-hook-form";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -71,6 +83,16 @@ function a11yProps(index) {
 }
 
 function Profile(props) {
+  const methods = useForm({
+    mode: "onChange",
+
+    defaultValues: {
+      rating: 0,
+      review: "",
+      datetimepicker: dayjs("2022-04-17T15:30"),
+    },
+  });
+
   const { setOpen, changeChat, setIsActivechatinput } = useContext(ChatContext);
 
   const [profile, setProfile] = React.useState({});
@@ -94,12 +116,12 @@ function Profile(props) {
           withCredentials: true,
         })
         .then(function(response) {
-          console.log(response);
+          //  console.log(response);
           setProfile(response.data[0]);
-          console.log("profile", profile);
+          //  console.log("profile", profile);
         });
 
-    console.log(`ID parameter changed to ${profileId}`);
+    // console.log(`ID parameter changed to ${profileId}`);
   }, [profileId]);
 
   //console.log("user._id", user._id);
@@ -124,7 +146,8 @@ function Profile(props) {
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
         setProfile(data.data[0]);
-        console.log(data);
+
+        //  console.log(data);
       },
       onError: (error) => {
         console.log(error);
@@ -161,7 +184,7 @@ function Profile(props) {
     axios
       .get(API_URL + "/users/" + profileId + "/followers")
       .then((res) => {
-        console.log("followers : " + JSON.stringify(res.data));
+        // console.log("followers : " + JSON.stringify(res.data));
         setNumberOffollow(res.data.followers.length);
         setNumberOffollowing(res.data.following.length);
 
@@ -169,8 +192,8 @@ function Profile(props) {
           let Following = false;
 
           res.data.followers.forEach((follower) => {
-            console.log("follower._id : " + follower._id);
-            console.log("user._id : " + user._id);
+            //  console.log("follower._id : " + follower._id);
+            // console.log("user._id : " + user._id);
 
             if (follower._id == user._id) {
               Following = true;
@@ -200,8 +223,34 @@ function Profile(props) {
     }
   };
 
+  const onSubmitAppointment = (data) => {
+    console.log("appointments" + JSON.stringify(data));
+    // send req to the appointment api
+    axios.post(API_URL + "/users/appointments", {
+      sender: user._id,
+      receiver: profileId,
+      date: data.datetimepicker,
+      location: data.location,
+    });
+  };
+
+  const onSubmitReview = (data) => {
+    // console.log(data);
+    // send req to the appointment api
+    //console.log("user._id", user._id);
+    //console.log("profileId", profileId);
+
+    axios.post(API_URL + "/users/reviews", {
+      sender: user._id,
+      receiver: profileId,
+      review: data.review,
+      rating: data.rating,
+    });
+  };
+
   return (
     <>
+      {console.log("profile", profile)}
       <Appbar />
 
       <Box sx={{ p: { xs: 1, sm: 4 } }}>
@@ -272,7 +321,7 @@ function Profile(props) {
                       <Rating
                         size="small"
                         name="size-large"
-                        value={profile.rating ? profile.rating : 0}
+                        value={profile.rating ? profile.rating : 4}
                         readOnly
                       />
                     </Box>
@@ -605,7 +654,8 @@ function Profile(props) {
                   ))}
               </TabPanel>
               <TabPanel value={value} index={1}>
-                {profile.appointments &&
+                {isMyprofile &&
+                  profile.appointments &&
                   profile.appointments.map((appointment, index) => (
                     <Paper key={index} sx={{ p: 2, mb: 1 }} elevation={10}>
                       <Box
@@ -616,18 +666,32 @@ function Profile(props) {
                         }}
                       >
                         <Avatar alt="Cindy Baker" src="" />
-                        <Typography> {appointment.user1} </Typography>{" "}
-                        <Typography> {appointment.user2} </Typography>
+                        <Typography>
+                          {appointment.sender &&
+                            appointment.sender.firstname +
+                              " " +
+                              appointment.sender.lastname}{" "}
+                        </Typography>{" "}
+                        {"   to    "}{" "}
+                        <Typography>
+                          {appointment.receiver &&
+                            appointment.receiver.firstname +
+                              " " +
+                              appointment.receiver.lastname}{" "}
+                        </Typography>
                       </Box>
-                      <Typography>
-                        {appointment.date} {"  "}
-                        {appointment.time}
-                      </Typography>
+                      <Typography>{appointment.date}</Typography>
                       <Typography> {appointment.location}</Typography>
                     </Paper>
                   ))}
 
-                <Paper key={555} sx={{ p: 2, mb: 1 }} elevation={10}>
+                <Paper
+                  key={555}
+                  sx={{ p: 2, mb: 1 }}
+                  elevation={10}
+                  component="form"
+                  onSubmit={methods.handleSubmit(onSubmitAppointment)}
+                >
                   <Box
                     sx={{
                       display: "flex",
@@ -636,11 +700,46 @@ function Profile(props) {
                     }}
                   >
                     <Avatar alt="Cindy Baker" src="" />
-                    <Typography> user 01 </Typography>
-                    <Typography> user 02 </Typography>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer
+                        components={["DateTimePicker", "DateTimePicker"]}
+                      >
+                        <Controller
+                          name={"datetimepicker"}
+                          control={methods.control}
+                          render={({ field: { onChange, value } }) => (
+                            <DateTimePicker
+                              label="Controlled picker"
+                              value={value}
+                              onChange={onChange}
+                            />
+                          )}
+                        />
+                      </DemoContainer>
+                    </LocalizationProvider>
                   </Box>
-                  <Typography>2013/02/28 10:00</Typography>
-                  <Typography> university </Typography>
+
+                  <Controller
+                    name={"location"}
+                    control={methods.control}
+                    render={({ field: { onChange, value } }) => (
+                      <TextField
+                        onChange={onChange}
+                        value={value ? value : ""}
+                        label={"firstname"}
+                        id="firstname"
+                        variant="outlined"
+                        maxRows={4}
+                        sx={{ flexGrow: 1, mr: 1 }}
+                        multiline
+                      />
+                    )}
+                  />
+
+                  <Button type="submit" variant="contained">
+                    submit
+                  </Button>
                 </Paper>
               </TabPanel>
 
@@ -673,15 +772,63 @@ function Profile(props) {
                           }}
                         >
                           <Avatar alt="Cindy Baker" src="" />
-                          <Typography> {review.sender} </Typography>
+                          <Typography>
+                            {" "}
+                            {review.sender.firstname +
+                              " " +
+                              review.sender.lastname}{" "}
+                          </Typography>
                         </Box>
                         <Rating
                           name="size-large"
                           value={review.rating ? review.rating : 0}
                         />
-                        <Typography> {review.message} </Typography>
+                        <Typography> {review.review} </Typography>
                       </Paper>
                     ))}
+                  <Paper key={555} sx={{ p: 1, m: 1 }} elevation={10}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                      component="form"
+                      onSubmit={methods.handleSubmit(onSubmitReview)}
+                    >
+                      <Avatar alt="Cindy Baker" src="" />
+                      <Typography> user</Typography>
+
+                      <Controller
+                        name={"rating"}
+                        control={methods.control}
+                        render={({ field: { onChange, value } }) => (
+                          <Rating
+                            name="simple-controlled"
+                            value={parseInt(value)}
+                            onChange={onChange}
+                          />
+                        )}
+                      />
+                      <Controller
+                        name={"review"}
+                        control={methods.control}
+                        render={({ field: { onChange, value } }) => (
+                          <TextField
+                            onChange={onChange}
+                            value={value}
+                            label={"review"}
+                            id="review"
+                            variant="outlined"
+                            maxRows={4}
+                            sx={{ flexGrow: 1, mr: 1 }}
+                            multiline
+                          />
+                        )}
+                      />
+                      <Button type="submit">save</Button>
+                    </Box>
+                  </Paper>
                 </Box>
               </TabPanel>
             </Paper>

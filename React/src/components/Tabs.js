@@ -36,7 +36,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { Navigate } from "react-router";
 import { DevTool } from "@hookform/devtools";
 import { useMutation } from "react-query";
-
+import { skillsArray } from "./skills";
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -72,8 +72,8 @@ function a11yProps(index) {
 
 export default function VerticalTabs({ profile }) {
   // const [profile, setProfile] = React.useState(props.profile);
-  console.log(profile);
-  console.log(profile.location && profile.location.wilaya);
+  // console.log(profile);
+  //console.log(profile.location && profile.location.wilaya);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("sm"));
 
@@ -86,7 +86,7 @@ export default function VerticalTabs({ profile }) {
   const [file, setFile] = React.useState();
 
   function FileshandleChange(e) {
-    console.log(e.target.files);
+    console.log(" inside " + e.target.files);
     setFile(URL.createObjectURL(e.target.files[0]));
   }
 
@@ -109,7 +109,6 @@ export default function VerticalTabs({ profile }) {
 
   const methods = useForm({
     mode: "onChange",
-
     defaultValues: defaultValues,
   });
 
@@ -133,26 +132,41 @@ export default function VerticalTabs({ profile }) {
     },
     {
       onSuccess: (response) => {
-        console.log("mutation succesed");
-        console.log(response.data);
-        console.log(response);
+        // console.log("mutation succesed");
+        // console.log(response.data);
+        // console.log(response);
         //  localStorage.setItem("user", JSON.stringify(response.data));
         //  navigate("/");
       },
       onError: (response) => {
-        console.log("mutation failed");
-        console.log(response.data);
-
+        // console.log("mutation failed");
+        // console.log(response.data);
         //  localStorage.setItem("user", JSON.stringify(response.data));
         //  navigate("/");
       },
     }
   );
+  const convertToBase64 = (f) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(f);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    const photobase64 = await convertToBase64(data.photo[0]);
+
+    data.photo = photobase64;
     console.log(data);
     try {
       mutation.mutate(data);
+      console.log(data);
     } catch (err) {
       console.log(err);
     }
@@ -205,13 +219,20 @@ export default function VerticalTabs({ profile }) {
                     src={
                       file
                         ? file
+                        : profile.photo
+                        ? profile.photo
                         : "https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png"
                     }
                     sx={{ width: 56, height: 56 }}
                   />
                   <Button component="label" sx={{ borderRadius: "50%" }}>
                     Change
-                    <input type="file" hidden onChange={FileshandleChange} />
+                    <input
+                      type="file"
+                      {...methods.register("photo")}
+                      onChange={FileshandleChange}
+                      hidden
+                    />
                   </Button>
                 </Box>
 
@@ -629,7 +650,9 @@ export default function VerticalTabs({ profile }) {
                       width: "100%",
                     }}
                   >
-                    {console.log(profile.skills)}
+                    {
+                      //console.log(profile.skills)
+                    }
                     <Divider textaligns="left"></Divider>
                     <Card sx={{ m: 1 }}>
                       <ModelComponent profileId={profile._id} />
@@ -637,7 +660,7 @@ export default function VerticalTabs({ profile }) {
 
                     {profile.projects &&
                       profile.projects.map((project, index) => (
-                        <Card sx={{ m: 1 }} key={index}>
+                        <Card sx={{ width: "100%", m: 1 }} key={index}>
                           <CardContent>
                             <Typography variant="h5" component="div">
                               {project.name}

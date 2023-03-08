@@ -15,7 +15,7 @@ import { ChatContext } from "../Contexts/ChatContext";
 import { Link as RouterLink } from "react-router-dom";
 import { Link as MuiLink } from "@mui/material";
 export default function Suggestedaccounts({ user }) {
-  console.log("suggested accounts", user._id);
+  // console.log("suggested accounts", user._id);
   const { setOpen, changeChat, setIsActivechatinput } = React.useContext(
     ChatContext
   );

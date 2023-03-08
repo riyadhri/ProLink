@@ -13,6 +13,7 @@ import {
   FormProvider,
   useFormContext,
 } from "react-hook-form";
+import { skillsArray } from "./skills";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -63,7 +64,6 @@ export default function MultipleSelectChip({ skills }) {
               labelId="demo-multiple-chip-label"
               id="demo-multiple-chip"
               multiple
-              // defaultValue={[]}
               value={value}
               onChange={onChange}
               input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
@@ -76,7 +76,7 @@ export default function MultipleSelectChip({ skills }) {
               )}
               MenuProps={MenuProps}
             >
-              {skills.map((name) => (
+              {skillsArray.map((name) => (
                 <MenuItem
                   key={name}
                   value={name}

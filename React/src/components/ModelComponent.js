@@ -60,6 +60,7 @@ export default function FormDialog({ profileId }) {
 
   const onSubmit = (data) => {
     console.log(data);
+    setOpen(false);
     try {
       mutation.mutate(data);
     } catch (err) {
